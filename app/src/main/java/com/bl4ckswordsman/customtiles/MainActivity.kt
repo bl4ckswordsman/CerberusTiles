@@ -1,13 +1,18 @@
 package com.bl4ckswordsman.customtiles
 
-import MainScreen
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.bl4ckswordsman.customtiles.ui.theme.CustomTilesTheme
 
+/** Main activity of the app. */
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val HOME_SCREEN = "Home"
+        const val SETTINGS_SCREEN = "Settings"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

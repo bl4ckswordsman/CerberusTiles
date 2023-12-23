@@ -1,3 +1,5 @@
+package com.bl4ckswordsman.customtiles
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,9 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bl4ckswordsman.customtiles.SettingsScreen
 import com.bl4ckswordsman.customtiles.navbar.BottomNavBar
 
+/**
+ * The main screen of the app.
+ *
+ * @param canWrite Whether the app has the WRITE_SETTINGS permission.
+ * @param isAdaptive Whether adaptive brightness is enabled.
+ * @param toggleAdaptiveBrightness Function to toggle adaptive brightness.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(canWrite: Boolean, isAdaptive: Boolean, toggleAdaptiveBrightness: () -> Unit) {
@@ -83,6 +91,9 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
     }
 }
 
+/**
+ * A preview of the main screen.
+ */
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {

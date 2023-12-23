@@ -37,6 +37,13 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+/**
+ * The theme of the app.
+ *
+ * @param darkTheme Whether the theme is dark.
+ * @param dynamicColor Whether to use dynamic color.
+ * @param content The content of the theme.
+ */
 @Composable
 fun CustomTilesTheme(
         darkTheme: Boolean = isSystemInDarkTheme(),
