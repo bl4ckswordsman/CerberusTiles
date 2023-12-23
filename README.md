@@ -4,10 +4,10 @@ Cerberus Tiles[^1] adds more quick settings tiles to your Google Pixel Phone.
 Tested in a Google Pixel 8 Pro.
 
 ## Features
-- Quick Setting Tiles:
-  - Adaptive Brightness toggle
-- App Shortcuts:
-  - ...
+  - Quick Setting Tiles:
+    - Adaptive Brightness toggle
+  - App Shortcuts:
+    - ...
 
 More features coming soon.
 
