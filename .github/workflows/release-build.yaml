@@ -54,12 +54,16 @@ jobs:
     steps:
       - name: Get commit message
         id: commit_message
-        run: echo "::set-output name=trigger::$(git log -1 --pretty=format:"%s" | grep '^build:')"
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          if [[ $COMMIT_MSG == build:* ]]; then
+            echo 'trigger=true' >> $GITHUB_ENV
+          fi
         shell: bash
 
   release:
     needs: check_commit
-    if: needs.check_commit.outputs.trigger != ''
+    if: needs.check_commit.outputs.trigger == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
