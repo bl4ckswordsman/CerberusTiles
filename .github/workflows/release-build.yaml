@@ -33,10 +33,11 @@ jobs:
       #    keyAlias: ${{ secrets.SIGNING_KEY_ALIAS }}
       #    keyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
       - name: Add version to APK
-        run: mv ${{steps.sign_apk.outputs.signedFile}} app-release-${{ env.RELEASE_VERSION }}.apk
+        run: mv app/build/outputs/apk/release/app-release.apk app-release-${{ env.RELEASE_VERSION }}.apk
+        #run: mv ${{steps.sign_apk.outputs.signedFile}} app-release-${{ env.RELEASE_VERSION }}.apk
       - name: Publish release APK
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
           prerelease: false
           files: app-release-${{ env.RELEASE_VERSION }}.apk
