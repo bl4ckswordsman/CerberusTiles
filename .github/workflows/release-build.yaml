@@ -52,6 +52,8 @@ jobs:
     outputs:
       trigger: ${{ steps.commit_message.outputs.trigger }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Get commit message
         id: commit_message
         run: |
