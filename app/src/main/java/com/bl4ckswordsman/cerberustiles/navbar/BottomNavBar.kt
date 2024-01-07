@@ -2,6 +2,8 @@ package com.bl4ckswordsman.cerberustiles.navbar
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -24,14 +26,27 @@ sealed class Screen(val route: String) {
  */
 @Composable
 fun BottomNavBar(selectedScreen: Screen, onScreenSelected: (Screen) -> Unit) {
+    val screens = listOf(Screen.Home, Screen.Settings)
+    val icons = mapOf(
+        Screen.Home to (Icons.Filled.Home to Icons.Outlined.Home),
+        Screen.Settings to (Icons.Filled.Settings to Icons.Outlined.Settings)
+    )
+
     NavigationBar {
-        NavigationBarItem(selected = selectedScreen is Screen.Home,
-            onClick = { onScreenSelected(Screen.Home) },
-            icon = { Icon(Icons.Filled.Home, contentDescription = null) },
-            label = { Text(Screen.Home.route) })
-        NavigationBarItem(selected = selectedScreen is Screen.Settings,
-            onClick = { onScreenSelected(Screen.Settings) },
-            icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-            label = { Text(Screen.Settings.route) })
+        screens.forEach { screen ->
+            NavigationBarItem(
+                selected = selectedScreen == screen,
+                onClick = { onScreenSelected(screen) },
+                icon = {
+                    val (filledIcon, outlinedIcon) = icons[screen]!!
+                    if (selectedScreen == screen) {
+                        Icon(filledIcon, contentDescription = null)
+                    } else {
+                        Icon(outlinedIcon, contentDescription = null)
+                    }
+                },
+                label = { Text(screen.route) }
+            )
+        }
     }
 }
