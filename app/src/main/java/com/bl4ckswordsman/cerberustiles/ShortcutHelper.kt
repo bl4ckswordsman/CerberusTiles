@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 /**
  * Helper class to create shortcuts.
  */
-class ShortcutHelper(private val context: Context) {
+class ShortcutHelper(private val context: Context, private val shortcutManager: ShortcutManager) {
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     /**

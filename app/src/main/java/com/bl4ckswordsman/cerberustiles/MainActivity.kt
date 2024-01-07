@@ -1,6 +1,7 @@
 package com.bl4ckswordsman.cerberustiles
 
 import android.content.Intent
+import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,7 +17,10 @@ import com.bl4ckswordsman.cerberustiles.ui.theme.CustomTilesTheme
 import kotlinx.coroutines.launch
 
 /** Main activity of the app. */
+@RequiresApi(Build.VERSION_CODES.N_MR1)
 class MainActivity : ComponentActivity(), LifecycleObserver {
+    private val shortcutManager by lazy { getSystemService(ShortcutManager::class.java) }
+    private val shortcutHelper by lazy { ShortcutHelper(this, shortcutManager) }
     companion object {
         const val HOME_SCREEN = "Home"
         const val SETTINGS_SCREEN = "Settings"
@@ -31,9 +35,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     override fun onResume() {
         super.onResume()
         _canWrite.value = Settings.System.canWrite(this)
-        _isAdaptive.value =
-            Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE) == 1
-
+        _isAdaptive.value = SettingsUtils.Brightness.isAdaptiveBrightnessEnabled(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
@@ -52,7 +54,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         }
 
         lifecycleScope.launch {
-            ShortcutHelper(this@MainActivity).createAdaptiveBrightnessShortcut()
+            shortcutHelper.createAdaptiveBrightnessShortcut()
         }
 
         // Handle the intent action from the shortcut
@@ -63,13 +65,9 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
 
     private fun toggleAdaptiveBrightness() {
-        val isAdaptive =
-            Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE) == 1
-        Settings.System.putInt(
-            contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE, if (isAdaptive) 0 else 1
-        )
+        SettingsUtils.Brightness.toggleAdaptiveBrightness(this)
         // Update _isAdaptive after changing the setting
-        _isAdaptive.value = !isAdaptive
+        _isAdaptive.value = !(_isAdaptive.value ?: false)
     }
 
 
