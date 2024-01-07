@@ -65,7 +65,7 @@ jobs:
         run: ./gradlew assembleRelease
       - name: List APK files
         run: ls -l app/build/outputs/apk/release/
-      - name: Add version to APK
+      - name: Add version to APK 2
         run: mv app/build/outputs/apk/release/app-release-unsigned.apk app-release-${{ env.RELEASE_VERSION }}.apk
       - name: Publish release APK
         uses: "marvinpinto/action-automatic-releases@latest"
