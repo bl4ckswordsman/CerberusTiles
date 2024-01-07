@@ -61,9 +61,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         }
     }
 
-    /**
-     * Toggles adaptive brightness. It needs the WRITE_SETTINGS permission.
-     */
+
     private fun toggleAdaptiveBrightness() {
         val isAdaptive =
             Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE) == 1

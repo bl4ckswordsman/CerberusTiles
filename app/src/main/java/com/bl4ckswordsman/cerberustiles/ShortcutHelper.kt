@@ -10,9 +10,15 @@ import androidx.annotation.RequiresApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * Helper class to create shortcuts.
+ */
 class ShortcutHelper(private val context: Context) {
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
+    /**
+     * Creates a shortcut to toggle adaptive brightness.
+     */
     suspend fun createAdaptiveBrightnessShortcut() {
         withContext(Dispatchers.IO) {
             val shortcutManager =

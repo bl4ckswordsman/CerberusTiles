@@ -5,6 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 
+/**
+ * A [BroadcastReceiver] that toggles adaptive brightness when the user taps the adaptive brightness
+ * shortcut.
+ */
 class AdaptiveBrightnessReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS") {

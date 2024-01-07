@@ -4,7 +4,10 @@ import android.app.Activity
 import android.os.Bundle
 import android.provider.Settings
 
-
+/**
+ * An [Activity] that toggles adaptive brightness when the user taps the adaptive brightness
+ * shortcut.
+ */
 class ToggleAdaptiveBrightnessActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
