@@ -66,7 +66,7 @@ jobs:
       - name: List APK files
         run: ls -l app/build/outputs/apk/release/
       - name: Add version to APK
-        run: mv app/build/outputs/apk/release/app-release.apk app-release-${{ env.RELEASE_VERSION }}.apk
+        run: mv app/build/outputs/apk/release/app-release-unsigned.apk app-release-${{ env.RELEASE_VERSION }}.apk
       - name: Publish release APK
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
