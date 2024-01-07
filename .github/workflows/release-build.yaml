@@ -44,28 +44,13 @@
 
 name: "Release Build"
 
-on: push
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
-  check_commit:
-    runs-on: ubuntu-latest
-    outputs:
-      trigger: ${{ steps.commit_message.outputs.trigger }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Get commit message
-        id: commit_message
-        run: |
-          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
-          if [[ $COMMIT_MSG == build:* ]]; then
-            echo 'trigger=true' >> $GITHUB_ENV
-          fi
-        shell: bash
-
   release:
-    needs: check_commit
-    if: needs.check_commit.outputs.trigger == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
