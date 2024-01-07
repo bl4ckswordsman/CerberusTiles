@@ -2,6 +2,7 @@ package com.bl4ckswordsman.cerberustiles
 
 import android.content.Context
 import android.provider.Settings
+import android.widget.Toast
 
 /** Utilities for different settings. */
 object SettingsUtils {
@@ -22,6 +23,9 @@ object SettingsUtils {
                     Settings.System.SCREEN_BRIGHTNESS_MODE,
                     if (isAdaptive) 0 else 1
                 )
+                // Show a toast with the new state of adaptive brightness
+                val newState = if (isAdaptive) "disabled" else "enabled"
+                Toast.makeText(context, "Adaptive brightness $newState", Toast.LENGTH_SHORT).show()
             }
         }
     }
