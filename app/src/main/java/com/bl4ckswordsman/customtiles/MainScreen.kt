@@ -14,6 +14,9 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -21,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.bl4ckswordsman.customtiles.navbar.BottomNavBar
 
 /**
@@ -32,9 +37,20 @@ import com.bl4ckswordsman.customtiles.navbar.BottomNavBar
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(canWrite: Boolean, isAdaptive: Boolean, toggleAdaptiveBrightness: () -> Unit) {
-    val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptive) }
+fun MainScreen(
+    canWrite: LiveData<Boolean>,
+    isAdaptive: LiveData<Boolean>,
+    toggleAdaptiveBrightness: () -> Unit,
+    openSettingsScreen: () -> Unit
+) {
+    val canWriteState by canWrite.observeAsState(initial = false)
+    val isAdaptiveState by isAdaptive.observeAsState(initial = false)
+    val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptiveState) }
     val (selectedScreen, setSelectedScreen) = remember { mutableStateOf("Home") }
+
+    SideEffect {
+        setSwitchedOn(isAdaptiveState)
+    }
 
     Scaffold(topBar = {
         TopAppBar(title = {
@@ -56,7 +72,11 @@ fun MainScreen(canWrite: Boolean, isAdaptive: Boolean, toggleAdaptiveBrightness:
                             isSwitchedOn = isSwitchedOn,
                             onCheckedChange = {
                                 setSwitchedOn(it)
-                                if (canWrite) toggleAdaptiveBrightness()
+                                if (canWriteState) {
+                                    toggleAdaptiveBrightness()
+                                } else {
+                                    openSettingsScreen()
+                                }
                             },
                             label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
                         )
@@ -97,5 +117,9 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen(canWrite = true, toggleAdaptiveBrightness = {}, isAdaptive = true)
+    MainScreen(
+        canWrite = MutableLiveData(true),
+        toggleAdaptiveBrightness = {},
+        isAdaptive = MutableLiveData(true),
+        openSettingsScreen = {})
 }
