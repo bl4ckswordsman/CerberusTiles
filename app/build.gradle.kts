@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.bl4ckswordsman.customtiles"
+    namespace = "com.bl4ckswordsman.cerberustiles"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.bl4ckswordsman.customtiles"
+        applicationId = "com.bl4ckswordsman.cerberustiles"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
