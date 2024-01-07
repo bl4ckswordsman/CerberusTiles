@@ -2,14 +2,18 @@ package com.bl4ckswordsman.cerberustiles
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import com.bl4ckswordsman.cerberustiles.ui.theme.CustomTilesTheme
+import kotlinx.coroutines.launch
 
 /** Main activity of the app. */
 class MainActivity : ComponentActivity(), LifecycleObserver {
@@ -22,7 +26,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     private val canWrite: LiveData<Boolean> get() = _canWrite
 
     private val _isAdaptive = MutableLiveData<Boolean>()
-    val isAdaptive: LiveData<Boolean> get() = _isAdaptive
+    private val isAdaptive: LiveData<Boolean> get() = _isAdaptive
 
     override fun onResume() {
         super.onResume()
@@ -32,6 +36,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(this)
@@ -44,6 +49,15 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                     openSettingsScreen = ::openSettingsScreen
                 )
             }
+        }
+
+        lifecycleScope.launch {
+            ShortcutHelper(this@MainActivity).createAdaptiveBrightnessShortcut()
+        }
+
+        // Handle the intent action from the shortcut
+        if (intent?.action == "com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS") {
+            toggleAdaptiveBrightness()
         }
     }
 
