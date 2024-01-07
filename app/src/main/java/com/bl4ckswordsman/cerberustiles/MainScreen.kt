@@ -47,8 +47,10 @@ fun MainScreen(
 ) {
     val canWriteState by canWrite.observeAsState(initial = false)
     val isAdaptiveState by isAdaptive.observeAsState(initial = false)
+
     val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptiveState) }
     val (selectedScreen, setSelectedScreen) = remember { mutableStateOf<Screen>(Screen.Home) }
+
     SideEffect {
         setSwitchedOn(isAdaptiveState)
     }
