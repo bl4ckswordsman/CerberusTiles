@@ -42,3 +42,4 @@ jobs:
           repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
           prerelease: true
           files: ${{ env.APP_NAME }}-release-${{ env.RELEASE_VERSION }}.apk
+
