@@ -1,0 +1,31 @@
+name: "Release Build 2"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "zulu"
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
+      - name: List APK files
+        run: ls -l app/build/outputs/apk/release/
+      - name: Add version to APK 2
+        run: mv app/build/outputs/apk/release/app-release-unsigned.apk app-release-${{ env.RELEASE_VERSION }}.apk
+      - name: Publish release APK
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
+          prerelease: true
+          files: app-release-${{ env.RELEASE_VERSION }}.apk
