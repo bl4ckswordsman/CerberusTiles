@@ -13,8 +13,19 @@ import androidx.compose.runtime.Composable
 import com.bl4ckswordsman.cerberustiles.Constants as label
 
 
+/**
+ * The screens of the app.
+ *
+ * @param route The route of the screen used for navigation.
+ */
 sealed class Screen(val route: String) {
+    /**
+     * The home screen of the app.
+     */
     data object Home : Screen(label.HOME_SCREEN)
+    /**
+     * The settings screen of the app.
+     */
     data object Settings : Screen(label.SETTINGS_SCREEN)
 }
 

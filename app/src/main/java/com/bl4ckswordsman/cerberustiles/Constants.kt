@@ -1,5 +1,6 @@
 package com.bl4ckswordsman.cerberustiles
 
+/** Constants used in the app. */
 object Constants {
     const val HOME_SCREEN = "Home"
     const val SETTINGS_SCREEN = "Settings"
