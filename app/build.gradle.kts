@@ -11,8 +11,8 @@ android {
         applicationId = "com.bl4ckswordsman.cerberustiles"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.0.31"
+        versionCode = 3
+        versionName = "0.0.40"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -24,7 +24,7 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // signingConfig = signingConfigs.getByName("debug")
+            //signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
