@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         const val HOME_SCREEN = "Home"
         const val SETTINGS_SCREEN = "Settings"
     }
+
     private val _canWrite = MutableLiveData<Boolean>()
     private val canWrite: LiveData<Boolean> get() = _canWrite
 
@@ -26,7 +27,8 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     override fun onResume() {
         super.onResume()
         _canWrite.value = Settings.System.canWrite(this)
-        _isAdaptive.value = Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE) == 1
+        _isAdaptive.value =
+            Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE) == 1
 
     }
 
@@ -58,9 +60,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         _isAdaptive.value = !isAdaptive
     }
 
-    /**
-     * Opens the settings screen where the user can grant the WRITE_SETTINGS permission.
-     */
+
     private fun openSettingsScreen() {
         val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
             data = Uri.parse("package:${this@MainActivity.packageName}")
