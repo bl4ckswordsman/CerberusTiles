@@ -32,9 +32,9 @@ jobs:
           keyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
       - name: Add version to APK
         run: mv ${{ steps.sign_apk.outputs.signedFile }} app-release-${{ env.RELEASE_VERSION }}.apk
-
       - name: Publish release APK
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "mathieucarbou/marvinpinto-action-automatic-releases@latest"
+        # uses: "marvinpinto/action-automatic-releases@latest" original repo with deprecated set-output
         with:
           repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
           prerelease: true
