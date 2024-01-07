@@ -63,6 +63,8 @@ jobs:
           distribution: "zulu"
       - name: Build with Gradle
         run: ./gradlew assembleRelease
+      - name: List APK files
+        run: ls -l app/build/outputs/apk/release/
       - name: Add version to APK
         run: mv app/build/outputs/apk/release/app-release.apk app-release-${{ env.RELEASE_VERSION }}.apk
       - name: Publish release APK
