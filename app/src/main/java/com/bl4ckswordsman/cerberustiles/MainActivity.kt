@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.customtiles
+package com.bl4ckswordsman.cerberustiles
 
 import android.content.Intent
 import android.net.Uri
@@ -9,7 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.bl4ckswordsman.customtiles.ui.theme.CustomTilesTheme
+import com.bl4ckswordsman.cerberustiles.ui.theme.CustomTilesTheme
 
 /** Main activity of the app. */
 class MainActivity : ComponentActivity(), LifecycleObserver {

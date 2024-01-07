@@ -11,7 +11,7 @@ android {
         applicationId = "com.bl4ckswordsman.cerberustiles"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
+        versionCode = 1
         versionName = "0.0.30"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

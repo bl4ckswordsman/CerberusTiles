@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.customtiles.navbar
+package com.bl4ckswordsman.cerberustiles.navbar
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -8,8 +8,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.bl4ckswordsman.customtiles.MainActivity.Companion.HOME_SCREEN
-import com.bl4ckswordsman.customtiles.MainActivity.Companion.SETTINGS_SCREEN
+import com.bl4ckswordsman.cerberustiles.MainActivity.Companion.HOME_SCREEN
+import com.bl4ckswordsman.cerberustiles.MainActivity.Companion.SETTINGS_SCREEN
 
 /**
  * The bottom navigation bar of the app.

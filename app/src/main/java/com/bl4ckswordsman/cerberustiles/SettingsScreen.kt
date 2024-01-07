@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.customtiles
+package com.bl4ckswordsman.cerberustiles
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

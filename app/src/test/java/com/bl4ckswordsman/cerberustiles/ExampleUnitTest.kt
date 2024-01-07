@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.customtiles
+package com.bl4ckswordsman.cerberustiles
 
 import org.junit.Test
 

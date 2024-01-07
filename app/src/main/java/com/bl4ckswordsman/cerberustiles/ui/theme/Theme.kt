@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.customtiles.ui.theme
+package com.bl4ckswordsman.cerberustiles.ui.theme
 
 import android.app.Activity
 import android.os.Build

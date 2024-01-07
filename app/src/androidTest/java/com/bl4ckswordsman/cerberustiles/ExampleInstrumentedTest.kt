@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.customtiles
+package com.bl4ckswordsman.cerberustiles
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

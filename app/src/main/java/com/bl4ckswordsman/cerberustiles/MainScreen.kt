@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.customtiles
+package com.bl4ckswordsman.cerberustiles
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.bl4ckswordsman.customtiles.navbar.BottomNavBar
+import com.bl4ckswordsman.cerberustiles.navbar.BottomNavBar
 
 /**
  * The main screen of the app.
