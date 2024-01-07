@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import com.bl4ckswordsman.cerberustiles.Constants.TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION
 import com.bl4ckswordsman.cerberustiles.ui.theme.CustomTilesTheme
 import kotlinx.coroutines.launch
 
@@ -21,10 +22,6 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity(), LifecycleObserver {
     private val shortcutManager by lazy { getSystemService(ShortcutManager::class.java) }
     private val shortcutHelper by lazy { ShortcutHelper(this, shortcutManager) }
-    companion object {
-        const val HOME_SCREEN = "Home"
-        const val SETTINGS_SCREEN = "Settings"
-    }
 
     private val _canWrite = MutableLiveData<Boolean>()
     private val canWrite: LiveData<Boolean> get() = _canWrite
@@ -32,6 +29,13 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     private val _isAdaptive = MutableLiveData<Boolean>()
     private val isAdaptive: LiveData<Boolean> get() = _isAdaptive
 
+    override fun onStart() {
+        super.onStart()
+
+        lifecycleScope.launch {
+            shortcutHelper.createAdaptiveBrightnessShortcut()
+        }
+    }
     override fun onResume() {
         super.onResume()
         _canWrite.value = Settings.System.canWrite(this)
@@ -48,17 +52,13 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                     canWrite = canWrite,
                     isAdaptive = isAdaptive,
                     toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
-                    openSettingsScreen = ::openSettingsScreen
+                    openPermissionSettings = ::openPermissionSettings
                 )
             }
         }
 
-        lifecycleScope.launch {
-            shortcutHelper.createAdaptiveBrightnessShortcut()
-        }
-
         // Handle the intent action from the shortcut
-        if (intent?.action == "com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS") {
+        if (intent?.action == TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION) {
             toggleAdaptiveBrightness()
         }
     }
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     }
 
 
-    private fun openSettingsScreen() {
+    private fun openPermissionSettings() {
         val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
             data = Uri.parse("package:${this@MainActivity.packageName}")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
