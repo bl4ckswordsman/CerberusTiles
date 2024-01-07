@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.bl4ckswordsman.cerberustiles.navbar.BottomNavBar
+import com.bl4ckswordsman.cerberustiles.navbar.Screen
+import com.bl4ckswordsman.cerberustiles.Constants as label
 
 /**
  * The main screen of the app.
@@ -41,13 +43,11 @@ fun MainScreen(
     canWrite: LiveData<Boolean>,
     isAdaptive: LiveData<Boolean>,
     toggleAdaptiveBrightness: () -> Unit,
-    openSettingsScreen: () -> Unit
 ) {
     val canWriteState by canWrite.observeAsState(initial = false)
     val isAdaptiveState by isAdaptive.observeAsState(initial = false)
     val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptiveState) }
-    val (selectedScreen, setSelectedScreen) = remember { mutableStateOf("Home") }
-
+    val (selectedScreen, setSelectedScreen) = remember { mutableStateOf<Screen>(Screen.Home) }
     SideEffect {
         setSwitchedOn(isAdaptiveState)
     }
@@ -55,14 +55,17 @@ fun MainScreen(
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(
-                text = selectedScreen, textAlign = TextAlign.Center
+                text = when (selectedScreen) {
+                    is Screen.Home -> label.HOME_SCREEN
+                    is Screen.Settings -> label.SETTINGS_SCREEN
+                }, textAlign = TextAlign.Center
             )
         })
     },
         bottomBar = { BottomNavBar(selectedScreen, setSelectedScreen) },
         content = { innerPadding ->
             when (selectedScreen) {
-                "Home" -> {
+                is Screen.Home -> {
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
@@ -75,7 +78,7 @@ fun MainScreen(
                                 if (canWriteState) {
                                     toggleAdaptiveBrightness()
                                 } else {
-                                    openSettingsScreen()
+                                    setSelectedScreen(Screen.Settings)
                                 }
                             },
                             label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
@@ -83,8 +86,7 @@ fun MainScreen(
                     }
                 }
 
-                "Settings" -> SettingsScreen()
-                else -> Text(text = "Screen not found")
+                is Screen.Settings -> SettingsScreen()
             }
         })
 }
@@ -121,5 +123,5 @@ fun MainScreenPreview() {
         canWrite = MutableLiveData(true),
         toggleAdaptiveBrightness = {},
         isAdaptive = MutableLiveData(true),
-        openSettingsScreen = {})
+    )
 }

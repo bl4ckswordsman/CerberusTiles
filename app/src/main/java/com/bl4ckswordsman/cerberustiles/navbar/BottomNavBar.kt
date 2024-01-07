@@ -8,8 +8,13 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.bl4ckswordsman.cerberustiles.MainActivity.Companion.HOME_SCREEN
-import com.bl4ckswordsman.cerberustiles.MainActivity.Companion.SETTINGS_SCREEN
+import com.bl4ckswordsman.cerberustiles.Constants as label
+
+
+sealed class Screen(val route: String) {
+    data object Home : Screen(label.HOME_SCREEN)
+    data object Settings : Screen(label.SETTINGS_SCREEN)
+}
 
 /**
  * The bottom navigation bar of the app.
@@ -18,15 +23,15 @@ import com.bl4ckswordsman.cerberustiles.MainActivity.Companion.SETTINGS_SCREEN
  * @param onScreenSelected Function to call when a screen is selected.
  */
 @Composable
-fun BottomNavBar(selectedScreen: String, onScreenSelected: (String) -> Unit) {
+fun BottomNavBar(selectedScreen: Screen, onScreenSelected: (Screen) -> Unit) {
     NavigationBar {
-        NavigationBarItem(selected = selectedScreen == HOME_SCREEN,
-            onClick = { onScreenSelected(HOME_SCREEN) },
+        NavigationBarItem(selected = selectedScreen is Screen.Home,
+            onClick = { onScreenSelected(Screen.Home) },
             icon = { Icon(Icons.Filled.Home, contentDescription = null) },
-            label = { Text(HOME_SCREEN) })
-        NavigationBarItem(selected = selectedScreen == SETTINGS_SCREEN,
-            onClick = { onScreenSelected(SETTINGS_SCREEN) },
+            label = { Text(Screen.Home.route) })
+        NavigationBarItem(selected = selectedScreen is Screen.Settings,
+            onClick = { onScreenSelected(Screen.Settings) },
             icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-            label = { Text(SETTINGS_SCREEN) })
+            label = { Text(Screen.Settings.route) })
     }
 }
