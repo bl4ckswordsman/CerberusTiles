@@ -43,6 +43,7 @@ fun MainScreen(
     canWrite: LiveData<Boolean>,
     isAdaptive: LiveData<Boolean>,
     toggleAdaptiveBrightness: () -> Unit,
+    openPermissionSettings: () -> Unit
 ) {
     val canWriteState by canWrite.observeAsState(initial = false)
     val isAdaptiveState by isAdaptive.observeAsState(initial = false)
@@ -78,7 +79,7 @@ fun MainScreen(
                                 if (canWriteState) {
                                     toggleAdaptiveBrightness()
                                 } else {
-                                    setSelectedScreen(Screen.Settings)
+                                    openPermissionSettings()
                                 }
                             },
                             label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
@@ -123,5 +124,6 @@ fun MainScreenPreview() {
         canWrite = MutableLiveData(true),
         toggleAdaptiveBrightness = {},
         isAdaptive = MutableLiveData(true),
+        openPermissionSettings = {}
     )
 }
