@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
@@ -47,6 +48,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(this)
         setContent {
