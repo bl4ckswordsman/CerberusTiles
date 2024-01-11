@@ -1,7 +1,6 @@
 package com.bl4ckswordsman.cerberustiles
 
 import android.content.Intent
-import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -22,13 +21,10 @@ import kotlinx.coroutines.launch
 /** Main activity of the app. */
 @RequiresApi(Build.VERSION_CODES.N_MR1)
 class MainActivity : ComponentActivity(), LifecycleObserver {
-
     /** TODO: Use viewModelScope for LiveData instead of using MutableLiveData, this ensures that
      * the LiveData is cleared when the ViewModel is cleared.**/
 
-
-    private val shortcutManager by lazy { getSystemService(ShortcutManager::class.java) }
-    private val shortcutHelper by lazy { ShortcutHelper(this, shortcutManager) }
+    private val shortcutHelper by lazy { ShortcutHelper(this) }
 
     private val _canWrite = MutableLiveData<Boolean>()
     private val canWrite: LiveData<Boolean> get() = _canWrite
