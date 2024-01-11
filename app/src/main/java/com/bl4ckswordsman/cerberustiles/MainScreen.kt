@@ -7,10 +7,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -111,7 +116,19 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = label)
-            Switch(checked = isSwitchedOn, onCheckedChange = { onCheckedChange(it) })
+            Switch(checked = isSwitchedOn,
+                onCheckedChange = { onCheckedChange(it) },
+                thumbContent = if (isSwitchedOn) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                        )
+                    }
+                } else {
+                    null
+                })
         }
     }
 }
@@ -122,10 +139,8 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen(
-        canWrite = MutableLiveData(true),
+    MainScreen(canWrite = MutableLiveData(true),
         toggleAdaptiveBrightness = {},
         isAdaptive = MutableLiveData(true),
-        openPermissionSettings = {}
-    )
+        openPermissionSettings = {})
 }
