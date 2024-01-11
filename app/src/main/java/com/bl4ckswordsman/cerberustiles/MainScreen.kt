@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -49,16 +48,21 @@ fun MainScreen(
     canWrite: LiveData<Boolean>,
     isAdaptive: LiveData<Boolean>,
     toggleAdaptiveBrightness: () -> Unit,
+    isVibrationMode: LiveData<Boolean>,
+    toggleVibrationMode: () -> Unit,
     openPermissionSettings: () -> Unit
 ) {
     val canWriteState by canWrite.observeAsState(initial = false)
     val isAdaptiveState by isAdaptive.observeAsState(initial = false)
+    val isVibrationModeState by isVibrationMode.observeAsState(initial = false)
 
     val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptiveState) }
+    val (isVibrationModeOn, setVibrationMode) = remember { mutableStateOf(isVibrationModeState) }
     val (selectedScreen, setSelectedScreen) = remember { mutableStateOf<Screen>(Screen.Home) }
 
     SideEffect {
         setSwitchedOn(isAdaptiveState)
+        setVibrationMode(isVibrationModeState)
     }
 
     Scaffold(topBar = {
@@ -84,7 +88,6 @@ fun MainScreen(
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
-                            .height(100.dp)
                     ) {
                         SwitchWithLabel(
                             isSwitchedOn = isSwitchedOn,
@@ -97,6 +100,18 @@ fun MainScreen(
                                 }
                             },
                             label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
+                        )
+                        SwitchWithLabel(
+                            isSwitchedOn = isVibrationModeOn,
+                            onCheckedChange = {
+                                setVibrationMode(it)
+                                if (canWriteState) {
+                                    toggleVibrationMode()
+                                } else {
+                                    openPermissionSettings()
+                                }
+                            },
+                            label = if (isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
                         )
                     }
                 }
@@ -111,9 +126,11 @@ fun MainScreen(
  */
 @Composable
 fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, label: String) {
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(12.dp)) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -149,5 +166,7 @@ fun MainScreenPreview() {
     MainScreen(canWrite = MutableLiveData(true),
         toggleAdaptiveBrightness = {},
         isAdaptive = MutableLiveData(true),
+        toggleVibrationMode = {},
+        isVibrationMode = MutableLiveData(true),
         openPermissionSettings = {})
 }

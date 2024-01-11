@@ -1,6 +1,7 @@
 package com.bl4ckswordsman.cerberustiles
 
 import android.content.Context
+import android.media.AudioManager
 import android.provider.Settings
 import android.widget.Toast
 
@@ -10,8 +11,7 @@ object SettingsUtils {
     object Brightness {
         fun isAdaptiveBrightnessEnabled(context: Context): Boolean {
             return Settings.System.getInt(
-                context.contentResolver,
-                Settings.System.SCREEN_BRIGHTNESS_MODE
+                context.contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE
             ) == 1
         }
 
@@ -26,6 +26,22 @@ object SettingsUtils {
                 // Show a toast with the new state of adaptive brightness
                 val newState = if (isAdaptive) "disabled" else "enabled"
                 Toast.makeText(context, "Adaptive brightness $newState", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    object Vibration {
+        fun isVibrationModeEnabled(context: Context): Boolean {
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            return audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE
+        }
+
+        fun toggleVibrationMode(context: Context) {
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            if (audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
+                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+            } else {
+                audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
             }
         }
     }

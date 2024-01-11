@@ -15,6 +15,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.bl4ckswordsman.cerberustiles.Constants.TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION
+import com.bl4ckswordsman.cerberustiles.Constants.TOGGLE_VIBRATION_MODE_ACTION
 import com.bl4ckswordsman.cerberustiles.ui.theme.CustomTilesTheme
 import kotlinx.coroutines.launch
 
@@ -34,6 +35,9 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
     private val _isAdaptive = MutableLiveData<Boolean>()
     private val isAdaptive: LiveData<Boolean> get() = _isAdaptive
+    private val _isVibrationMode = MutableLiveData<Boolean>()
+    private val isVibrationMode: LiveData<Boolean> get() = _isVibrationMode
+
 
     override fun onStart() {
         super.onStart()
@@ -47,6 +51,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         super.onResume()
         _canWrite.value = Settings.System.canWrite(this)
         _isAdaptive.value = SettingsUtils.Brightness.isAdaptiveBrightnessEnabled(this)
+        _isVibrationMode.value = SettingsUtils.Vibration.isVibrationModeEnabled(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
@@ -60,6 +65,8 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                     canWrite = canWrite,
                     isAdaptive = isAdaptive,
                     toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
+                    isVibrationMode = isVibrationMode,
+                    toggleVibrationMode = ::toggleVibrationMode,
                     openPermissionSettings = ::openPermissionSettings
                 )
             }
@@ -69,6 +76,9 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         if (intent?.action == TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION) {
             toggleAdaptiveBrightness()
         }
+        if (intent?.action == TOGGLE_VIBRATION_MODE_ACTION) {
+            toggleVibrationMode()
+        }
     }
 
 
@@ -76,6 +86,11 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         SettingsUtils.Brightness.toggleAdaptiveBrightness(this)
         // Update _isAdaptive after changing the setting
         _isAdaptive.value = !(_isAdaptive.value ?: false)
+    }
+
+    private fun toggleVibrationMode() {
+        SettingsUtils.Vibration.toggleVibrationMode(this)
+        _isVibrationMode.value = !(_isVibrationMode.value ?: false)
     }
 
 

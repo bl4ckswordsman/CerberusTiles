@@ -7,4 +7,7 @@ object Constants {
 
     const val TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION =
         "com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS"
+    const val TOGGLE_VIBRATION_MODE_ACTION =
+        "com.bl4ckswordsman.cerberustiles.action.TOGGLE_VIBRATION_MODE"
+
 }
