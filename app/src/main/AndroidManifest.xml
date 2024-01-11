@@ -33,6 +33,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".ToggleVibrationModeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.bl4ckswordsman.cerberustiles.TOGGLE_VIBRATION_MODE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <service
             android:name=".quicksettingstiles.AdaptiveBrightnessTileService"
             android:icon="@drawable/baseline_brightness_auto_24"

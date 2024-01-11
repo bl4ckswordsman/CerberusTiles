@@ -38,3 +38,17 @@ class ToggleAdaptiveBrightnessActivity : BaseToggleActivity() {
         SettingsUtils.Brightness.toggleAdaptiveBrightness(this)
     }
 }
+
+/**
+ * An [Activity] that toggles vibration mode when the user taps the vibration mode shortcut.
+ * It uses BaseToggleActivity as a base class.
+ */
+class ToggleVibrationModeActivity : BaseToggleActivity() {
+    override fun hasRequiredPermissions(): Boolean {
+        return true
+    }
+
+    override fun performAction() {
+        SettingsUtils.Vibration.toggleVibrationMode(this)
+    }
+}

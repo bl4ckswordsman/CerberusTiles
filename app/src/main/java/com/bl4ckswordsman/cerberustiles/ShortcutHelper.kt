@@ -64,4 +64,19 @@ class ShortcutHelper(private val context: Context) {
             activityClass = ToggleAdaptiveBrightnessActivity::class.java
         )
     }
+
+    /**
+     * Creates a shortcut to toggle vibration mode using createShortcut().
+     */
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    suspend fun createVibrationModeShortcut() {
+        createShortcut(
+            "toggle_vibration_ringer_mode",
+            "Toggle Vibration Ringer Mode",
+            "Toggle Vibration Ringer Mode",
+            R.drawable.baseline_vibration_24,
+            "com.bl4ckswordsman.cerberustiles.TOGGLE_VIBRATION_RINGER_MODE",
+            activityClass = ToggleVibrationModeActivity::class.java
+        )
+    }
 }

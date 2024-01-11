@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
         lifecycleScope.launch {
             shortcutHelper.createAdaptiveBrightnessShortcut()
+            shortcutHelper.createVibrationModeShortcut()
         }
     }
 
