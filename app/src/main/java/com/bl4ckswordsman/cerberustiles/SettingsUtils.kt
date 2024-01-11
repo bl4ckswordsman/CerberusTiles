@@ -7,6 +7,12 @@ import android.widget.Toast
 
 /** Utilities for different settings. */
 object SettingsUtils {
+    /** Shows a toast with the given message. */
+    fun showToast(context: Context, setting: String, isEnabled: Boolean) {
+        val state = if (isEnabled) "enabled" else "disabled"
+        Toast.makeText(context, "$setting $state", Toast.LENGTH_SHORT).show()
+    }
+
     /** Utilities for brightness settings. */
     object Brightness {
         fun isAdaptiveBrightnessEnabled(context: Context): Boolean {
@@ -24,8 +30,7 @@ object SettingsUtils {
                     if (isAdaptive) 0 else 1
                 )
                 // Show a toast with the new state of adaptive brightness
-                val newState = if (isAdaptive) "disabled" else "enabled"
-                Toast.makeText(context, "Adaptive brightness $newState", Toast.LENGTH_SHORT).show()
+                showToast(context, "Adaptive brightness", !isAdaptive)
             }
         }
     }
@@ -40,8 +45,10 @@ object SettingsUtils {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             if (audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                showToast(context, "Vibration mode", false)
             } else {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
+                showToast(context, "Vibration mode", true)
             }
         }
     }
