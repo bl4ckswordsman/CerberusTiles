@@ -33,6 +33,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".quicksettingstiles.AdaptiveBrightnessTileService"
+            android:icon="@drawable/baseline_brightness_auto_24"
+            android:label="Adaptive Brightness"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
     </application>
 
 
