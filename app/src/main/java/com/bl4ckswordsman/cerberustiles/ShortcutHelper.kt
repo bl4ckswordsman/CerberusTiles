@@ -14,6 +14,34 @@ import kotlinx.coroutines.withContext
  * Helper class to create shortcuts.
  */
 class ShortcutHelper(private val context: Context) {
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    suspend fun createAllShortcuts() {
+        withContext(Dispatchers.IO) {
+            val shortcutManager = context.getSystemService(ShortcutManager::class.java)
+
+            val adaptiveBrightnessShortcut = createShortcut(
+                id = "toggle_adaptive_brightness",
+                shortLabel = "Toggle Adaptive Brightness",
+                longLabel = "Toggle Adaptive Brightness",
+                icon = R.drawable.baseline_brightness_auto_24,
+                action = "com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS",
+                activityClass = ToggleAdaptiveBrightnessActivity::class.java
+            )
+
+            val vibrationRingerModeShortcut = createShortcut(
+                "toggle_vibration_ringer_mode",
+                "Toggle Vibration Ringer Mode",
+                "Toggle Vibration Ringer Mode",
+                R.drawable.baseline_vibration_24,
+                "com.bl4ckswordsman.cerberustiles.TOGGLE_VIBRATION_RINGER_MODE",
+                activityClass = ToggleVibrationModeActivity::class.java
+            )
+
+            shortcutManager?.dynamicShortcuts =
+                listOf(adaptiveBrightnessShortcut, vibrationRingerModeShortcut)
+        }
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     /**
@@ -32,10 +60,8 @@ class ShortcutHelper(private val context: Context) {
         icon: Int,
         action: String,
         activityClass: Class<*>
-    ) {
-        withContext(Dispatchers.IO) {
-            val shortcutManager = context.getSystemService(ShortcutManager::class.java)
-
+    ): ShortcutInfo {
+        return withContext(Dispatchers.IO) {
             val shortcut = ShortcutInfo.Builder(context, id)
                 .setShortLabel(shortLabel)
                 .setLongLabel(longLabel)
@@ -46,37 +72,7 @@ class ShortcutHelper(private val context: Context) {
                 })
                 .build()
 
-            shortcutManager?.dynamicShortcuts = listOf(shortcut)
+            shortcut
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N_MR1)
-    /**
-     * Creates a shortcut to toggle adaptive brightness using createShortcut().
-     */
-    suspend fun createAdaptiveBrightnessShortcut() {
-        createShortcut(
-            id = "toggle_adaptive_brightness",
-            shortLabel = "Toggle Adaptive Brightness",
-            longLabel = "Toggle Adaptive Brightness",
-            icon = R.drawable.baseline_brightness_auto_24,
-            action = "com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS",
-            activityClass = ToggleAdaptiveBrightnessActivity::class.java
-        )
-    }
-
-    /**
-     * Creates a shortcut to toggle vibration mode using createShortcut().
-     */
-    @RequiresApi(Build.VERSION_CODES.N_MR1)
-    suspend fun createVibrationModeShortcut() {
-        createShortcut(
-            "toggle_vibration_ringer_mode",
-            "Toggle Vibration Ringer Mode",
-            "Toggle Vibration Ringer Mode",
-            R.drawable.baseline_vibration_24,
-            "com.bl4ckswordsman.cerberustiles.TOGGLE_VIBRATION_RINGER_MODE",
-            activityClass = ToggleVibrationModeActivity::class.java
-        )
     }
 }
