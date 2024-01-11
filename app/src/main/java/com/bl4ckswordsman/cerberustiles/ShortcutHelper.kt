@@ -17,29 +17,51 @@ class ShortcutHelper(private val context: Context) {
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     /**
-     * Creates a shortcut to toggle adaptive brightness.
+     * Creates a shortcut with the given parameters.
+     * @param id The ID of the shortcut.
+     * @param shortLabel The short label of the shortcut.
+     * @param longLabel The long label of the shortcut.
+     * @param icon The icon of the shortcut.
+     * @param action The action of the shortcut.
+     * @param activityClass The activity class of the shortcut.
      */
-    suspend fun createAdaptiveBrightnessShortcut() {
+    suspend fun createShortcut(
+        id: String,
+        shortLabel: String,
+        longLabel: String,
+        icon: Int,
+        action: String,
+        activityClass: Class<*>
+    ) {
         withContext(Dispatchers.IO) {
-            val shortcutManager =
-                context.getSystemService<ShortcutManager>(ShortcutManager::class.java)
+            val shortcutManager = context.getSystemService(ShortcutManager::class.java)
 
-            val shortcut = ShortcutInfo.Builder(context, "toggle_adaptive_brightness")
-                .setShortLabel("Toggle Adaptive Brightness")
-                .setLongLabel("Toggle Adaptive Brightness")
-                .setIcon(
-                    Icon.createWithResource(
-                        context,
-                        R.drawable.baseline_brightness_auto_24
-                    )
-                ) // Replace with your icon
-                .setIntent(Intent(context, ToggleAdaptiveBrightnessActivity::class.java).apply {
-                    action = "com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS"
+            val shortcut = ShortcutInfo.Builder(context, id)
+                .setShortLabel(shortLabel)
+                .setLongLabel(longLabel)
+                .setIcon(Icon.createWithResource(context, icon))
+                .setIntent(Intent(context, activityClass).apply {
+                    this.action = action
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 })
                 .build()
 
             shortcutManager?.dynamicShortcuts = listOf(shortcut)
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    /**
+     * Creates a shortcut to toggle adaptive brightness using createShortcut().
+     */
+    suspend fun createAdaptiveBrightnessShortcut() {
+        createShortcut(
+            id = "toggle_adaptive_brightness",
+            shortLabel = "Toggle Adaptive Brightness",
+            longLabel = "Toggle Adaptive Brightness",
+            icon = R.drawable.baseline_brightness_auto_24,
+            action = "com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS",
+            activityClass = ToggleAdaptiveBrightnessActivity::class.java
+        )
     }
 }
