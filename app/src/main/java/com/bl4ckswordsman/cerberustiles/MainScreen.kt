@@ -113,11 +113,11 @@ fun MainScreen(
 fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, label: String) {
     Card(modifier = Modifier
         .fillMaxWidth()
-        .clickable { onCheckedChange(!isSwitchedOn) }
         .padding(12.dp)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable { onCheckedChange(!isSwitchedOn) }
                 .padding(12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
