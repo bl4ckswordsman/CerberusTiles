@@ -40,6 +40,6 @@ jobs:
         # uses: "marvinpinto/action-automatic-releases@latest" original repo with deprecated set-output
         with:
           repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
-          prerelease: true
+          prerelease: false
           files: ${{ env.APP_NAME }}-release-${{ env.RELEASE_VERSION }}.apk
 
