@@ -15,8 +15,8 @@ Tested in a Google Pixel 8 Pro.
 | Vibration Ringer Mode |       ✅       |      -       |          -          |
 |           -           |               |              |                     |
 
-[!NOTE]
-More features coming soon.
+> [!NOTE]
+> More features coming soon.
 
 
 [^1]: Name inspired by the multi-headed hound of Hades that guards the underworld.
