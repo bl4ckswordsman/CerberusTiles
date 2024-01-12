@@ -2,6 +2,11 @@
 
 name: "Release Build"
 
+permissions:
+  contents: write
+  packages: write
+  statuses: read
+
 on:
   push:
     tags:
@@ -39,7 +44,7 @@ jobs:
         uses: "mathieucarbou/marvinpinto-action-automatic-releases@latest"
         # uses: "marvinpinto/action-automatic-releases@latest" original repo with deprecated set-output
         with:
-          repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: ${{ env.APP_NAME }}-release-${{ env.RELEASE_VERSION }}.apk
 
