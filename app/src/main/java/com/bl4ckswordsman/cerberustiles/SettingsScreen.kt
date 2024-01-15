@@ -97,8 +97,8 @@ fun SettingsScreen(paddingValues: PaddingValues) {
 
 @Composable
 fun MarkdownText(markdown: String) {
-    val context = LocalContext.current
-    val markwon = remember { Markwon.create(context) }
+    val markdownContext = LocalContext.current
+    val markwon = remember { Markwon.create(markdownContext) }
 
     AndroidView(factory = { context ->
         TextView(context).apply {
