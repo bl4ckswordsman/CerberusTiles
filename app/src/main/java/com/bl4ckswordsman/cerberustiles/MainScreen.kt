@@ -116,7 +116,7 @@ fun MainScreen(
                     }
                 }
 
-                is Screen.Settings -> SettingsScreen()
+                is Screen.Settings -> SettingsScreen(innerPadding)
             }
         })
 }
