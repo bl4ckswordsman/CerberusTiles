@@ -11,8 +11,8 @@ android {
         applicationId = "com.bl4ckswordsman.cerberustiles"
         minSdk = 24
         targetSdk = 34
-        versionCode = 5
-        versionName = "0.2.1"
+        versionCode = 6
+        versionName = "0.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -62,6 +62,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-rxjava2:1.5.4")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation ("io.noties.markwon:core:4.6.2")
+    implementation("androidx.lifecycle:lifecycle-process:2.7.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
