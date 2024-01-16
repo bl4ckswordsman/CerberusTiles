@@ -30,4 +30,10 @@ Tested in a Google Pixel 8 Pro.
 > More features coming soon.
 
 
+### Shoutout to:
+
+[This cool Gradient Generator](https://doodad.dev/gradient-generator/), Bing Copilot for the
+generated app icon etc.
+
+
 [^1]: Name inspired by the multi-headed hound of Hades that guards the underworld.
