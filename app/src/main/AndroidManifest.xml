@@ -8,15 +8,17 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher_cerberus"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_cerberus_round"
         android:supportsRtl="true"
-        android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.CustomTiles"
         tools:targetApi="tiramisu">
         <activity
@@ -29,28 +31,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ToggleAdaptiveBrightnessActivity"
+        <activity
+            android:name=".ToggleAdaptiveBrightnessActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".ToggleVibrationModeActivity"
+        <activity
+            android:name=".ToggleVibrationModeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.bl4ckswordsman.cerberustiles.TOGGLE_VIBRATION_MODE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <service
             android:name=".quicksettingstiles.AdaptiveBrightnessTileService"
+            android:exported="true"
             android:icon="@drawable/baseline_brightness_auto_24"
             android:label="Adaptive Brightness"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            android:exported="true">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
     </application>

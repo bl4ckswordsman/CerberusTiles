@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.Settings
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -184,6 +185,15 @@ fun SettingsScreen(paddingValues: PaddingValues) {
             dismissButton = {
                 if (isUpdateAvailable) {
                     Button(onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            if (!context.packageManager.canRequestPackageInstalls()) {
+                                // Request the permission to install packages
+                                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                                intent.data = Uri.parse("package:" + context.packageName)
+                                context.startActivity(intent)
+                                return@Button
+                            }
+                        }
                         coroutineScope.launch {
                             val url = versionManager.getLatestReleaseApkUrl()
                             val request = DownloadManager.Request(Uri.parse(url))
