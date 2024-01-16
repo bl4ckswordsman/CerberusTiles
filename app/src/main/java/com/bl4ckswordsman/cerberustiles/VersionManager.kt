@@ -63,7 +63,28 @@ class VersionManager {
         }
     }
 
-
-
+    /**
+     * Returns the APK download URL of the latest release from the GitHub repo.
+     * @return The APK download URL of the latest release.
+     */
+    suspend fun getLatestReleaseApkUrl(): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                val json = URL(repoApiUrl).readText()
+                val jsonObj = JSONObject(json)
+                val assets = jsonObj.getJSONArray("assets")
+                for (i in 0 until assets.length()) {
+                    val asset = assets.getJSONObject(i)
+                    if (asset.getString("name").endsWith(".apk")) {
+                        return@withContext asset.getString("browser_download_url")
+                    }
+                }
+                ""
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ""
+            }
+        }
+    }
 
 }
