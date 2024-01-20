@@ -1,7 +1,6 @@
 package com.bl4ckswordsman.cerberustiles
 
 import android.app.DownloadManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -9,7 +8,6 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.provider.Settings
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.widget.TextView
@@ -75,34 +73,7 @@ fun SettingsScreen(paddingValues: PaddingValues) {
                             columnIndex
                         )
                     ) {
-                        val downloadUri = downloadManager.getUriForDownloadedFile(downloadId.value)
-                        if (downloadUri != null) {
-                            val installIntent = Intent(Intent.ACTION_VIEW)
-                            installIntent.setDataAndType(
-                                downloadUri,
-                                "application/vnd.android.package-archive"
-                            )
-                            installIntent.flags =
-                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-
-                            val pendingIntent = PendingIntent.getActivity(
-                                context,
-                                0,
-                                installIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT
-                            )
-
-                            try {
-                                Log.d("Install", "Starting installation")
-                                pendingIntent.send()
-                            } catch (e: Exception) {
-                                // Log the exception
-                                Log.d("Install Error", "Exception while starting installation", e)
-                                e.printStackTrace()
-                            }
-                        } else {
-                            Log.d("File Access", "File does not exist or is not accessible")
-                        }
+                        Log.d("Download", "Download successful")
                     }
                 }
             }
@@ -180,45 +151,22 @@ fun SettingsScreen(paddingValues: PaddingValues) {
             dismissButton = {
                 if (isUpdateAvailable) {
                     Button(onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            if (!context.packageManager.canRequestPackageInstalls()) {
-                                // Request the permission to install packages
-                                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
-                                intent.data = Uri.parse("package:" + context.packageName)
-                                context.startActivity(intent)
-                                return@Button
-                            }
-                        }
                         coroutineScope.launch {
                             val url = versionManager.getLatestReleaseApkUrl()
                             if (url.startsWith("http://") || url.startsWith("https://")) {
                                 val request = DownloadManager.Request(Uri.parse(url))
-                                request.setDestinationInExternalFilesDir(
-                                    context,
-                                    Environment.DIRECTORY_DOWNLOADS,
-                                    "CerberusTiles.apk"
-                                )
-                                downloadId.value = downloadManager.enqueue(request)
-/*                                val request = DownloadManager.Request(Uri.parse(url))
                                 request.setDestinationInExternalPublicDir(
                                     Environment.DIRECTORY_DOWNLOADS,
-                                    "CerberusTiles.apk"
+                                    "CerberusTiles-update.apk"
                                 )
                                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                                downloadId.value = downloadManager.enqueue(request)*/
+                                downloadId.value = downloadManager.enqueue(request)
                             } else {
                                 Log.d("Download Error", "Invalid URL: $url")
                             }
-                            val request = DownloadManager.Request(Uri.parse(url))
-                            request.setDestinationInExternalFilesDir(
-                                context,
-                                Environment.DIRECTORY_DOWNLOADS,
-                                "CerberusTiles.apk"
-                            )
-                            downloadId.value = downloadManager.enqueue(request)
                         }
                     }) {
-                        Text("Update")
+                        Text("Download update")
                     }
                 }
             })
