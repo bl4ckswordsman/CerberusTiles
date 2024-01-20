@@ -1,6 +1,7 @@
 package com.bl4ckswordsman.cerberustiles
 
 import android.app.DownloadManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -35,19 +37,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.FileProvider
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.launch
-import java.io.File
 
 
 /**
  * The settings screen of the app.
  * @param paddingValues The padding values of the screen.
  */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun SettingsScreen(paddingValues: PaddingValues) {
 
@@ -62,6 +60,7 @@ fun SettingsScreen(paddingValues: PaddingValues) {
 
     val onDownloadComplete = object : BroadcastReceiver() {
         override fun onReceive(context: Context, downloadIntent: Intent) {
+            Log.d("Download", "Download complete")
             if (downloadId.value == downloadIntent.getLongExtra(
                     DownloadManager.EXTRA_DOWNLOAD_ID,
                     -1L
@@ -76,27 +75,33 @@ fun SettingsScreen(paddingValues: PaddingValues) {
                             columnIndex
                         )
                     ) {
-                        val uriColumnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
-                        if (uriColumnIndex != -1) {
-                            val uriString = cursor.getString(uriColumnIndex)
-                            val path = Uri.parse(uriString)?.path
-                            if (path != null) {
-                                val file = File(path)
-                                if (file.exists()) {
-                                    val installIntent = Intent(Intent.ACTION_VIEW)
-                                    installIntent.setDataAndType(
-                                        FileProvider.getUriForFile(
-                                            context,
-                                            "${context.packageName}.provider",
-                                            file
-                                        ),
-                                        "application/vnd.android.package-archive"
-                                    )
-                                    installIntent.flags =
-                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                    context.startActivity(installIntent)
-                                }
+                        val downloadUri = downloadManager.getUriForDownloadedFile(downloadId.value)
+                        if (downloadUri != null) {
+                            val installIntent = Intent(Intent.ACTION_VIEW)
+                            installIntent.setDataAndType(
+                                downloadUri,
+                                "application/vnd.android.package-archive"
+                            )
+                            installIntent.flags =
+                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+                            val pendingIntent = PendingIntent.getActivity(
+                                context,
+                                0,
+                                installIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                            )
+
+                            try {
+                                Log.d("Install", "Starting installation")
+                                pendingIntent.send()
+                            } catch (e: Exception) {
+                                // Log the exception
+                                Log.d("Install Error", "Exception while starting installation", e)
+                                e.printStackTrace()
                             }
+                        } else {
+                            Log.d("File Access", "File does not exist or is not accessible")
                         }
                     }
                 }
@@ -104,29 +109,19 @@ fun SettingsScreen(paddingValues: PaddingValues) {
         }
     }
 
-    val lifecycleObserver = remember {
-        object : DefaultLifecycleObserver {
-            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-            override fun onCreate(owner: LifecycleOwner) {
-                context.registerReceiver(
-                    onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-                    Context.RECEIVER_NOT_EXPORTED
-                )
-            }
-
-            override fun onDestroy(owner: LifecycleOwner) {
-                context.unregisterReceiver(onDownloadComplete)
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
-        ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
+        context.registerReceiver(
+            onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+            Context.RECEIVER_NOT_EXPORTED
+        )
+
+
     }
 
     DisposableEffect(Unit) {
         onDispose {
-            ProcessLifecycleOwner.get().lifecycle.removeObserver(lifecycleObserver)
+            context.unregisterReceiver(onDownloadComplete)
         }
     }
 
@@ -196,8 +191,27 @@ fun SettingsScreen(paddingValues: PaddingValues) {
                         }
                         coroutineScope.launch {
                             val url = versionManager.getLatestReleaseApkUrl()
+                            if (url.startsWith("http://") || url.startsWith("https://")) {
+                                val request = DownloadManager.Request(Uri.parse(url))
+                                request.setDestinationInExternalFilesDir(
+                                    context,
+                                    Environment.DIRECTORY_DOWNLOADS,
+                                    "CerberusTiles.apk"
+                                )
+                                downloadId.value = downloadManager.enqueue(request)
+/*                                val request = DownloadManager.Request(Uri.parse(url))
+                                request.setDestinationInExternalPublicDir(
+                                    Environment.DIRECTORY_DOWNLOADS,
+                                    "CerberusTiles.apk"
+                                )
+                                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                                downloadId.value = downloadManager.enqueue(request)*/
+                            } else {
+                                Log.d("Download Error", "Invalid URL: $url")
+                            }
                             val request = DownloadManager.Request(Uri.parse(url))
-                            request.setDestinationInExternalPublicDir(
+                            request.setDestinationInExternalFilesDir(
+                                context,
                                 Environment.DIRECTORY_DOWNLOADS,
                                 "CerberusTiles.apk"
                             )
@@ -239,6 +253,7 @@ suspend fun fetchLatestReleaseInfo(context: Context): ReleaseInfo {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
