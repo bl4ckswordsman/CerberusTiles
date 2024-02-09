@@ -102,8 +102,17 @@ fun SettingsScreen(paddingValues: PaddingValues) {
     }
 
 
-    val isUpdateAvailable =
-        releaseInfo.value.currentVersion < releaseInfo.value.latestVersion.removePrefix("v")
+    fun parseVersion(version: String): List<Int> {
+        return if (version.isNotEmpty()) {
+            version.removePrefix("v").split(".").map { it.toInt() }
+        } else {
+            listOf(0)
+        }
+    }
+
+    val currentVersionNumbers = parseVersion(releaseInfo.value.currentVersion)
+    val latestVersionNumbers = parseVersion(releaseInfo.value.latestVersion)
+    val isUpdateAvailable = currentVersionNumbers.zip(latestVersionNumbers).any { (current, latest) -> current < latest }
 
     val versionManager = remember { VersionManager() }
 
