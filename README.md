@@ -9,7 +9,6 @@
   <a href="https://github.com/bl4ckswordsman/CerberusTiles/releases/latest"><img src="https://img.shields.io/github/v/release/bl4ckswordsman/CerberusTiles" alt="GitHub release (latest by date)"></a>
   <a href="https://github.com/bl4ckswordsman/CerberusTiles/actions/workflows/release-build.yaml"><img src="https://github.com/bl4ckswordsman/CerberusTiles/actions/workflows/release-build.yaml/badge.svg" alt="Release Build"></a>
   <a href="https://github.com/bl4ckswordsman/CerberusTiles/actions/workflows/codeql.yml"><img src="https://github.com/bl4ckswordsman/CerberusTiles/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
-    <a href="https://github.com/bl4ckswordsman/CerberusTiles/actions/workflows/release-build.yaml"><img src="https://github.com/bl4ckswordsman/CerberusTiles/actions/workflows/release-build.yaml/badge.svg" alt="Release Build"></a>
   <a href="https://github.com/bl4ckswordsman/CerberusTiles/"><img src="https://badges.pufler.dev/visits/bl4ckswordsman/CerberusTiles/" alt="Visits Badge"></a>
 </p>
 
