@@ -34,6 +34,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.bl4ckswordsman.cerberustiles.navbar.BottomNavBar
 import com.bl4ckswordsman.cerberustiles.navbar.Screen
 import com.bl4ckswordsman.cerberustiles.Constants as label
@@ -56,17 +60,24 @@ fun MainScreen(
     toggleVibrationMode: () -> Unit,
     openPermissionSettings: () -> Unit
 ) {
+    val navController = rememberNavController()
     val canWriteState by canWrite.observeAsState(initial = false)
     val isAdaptiveState by isAdaptive.observeAsState(initial = false)
     val isVibrationModeState by isVibrationMode.observeAsState(initial = false)
 
     val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptiveState) }
     val (isVibrationModeOn, setVibrationMode) = remember { mutableStateOf(isVibrationModeState) }
-    val (selectedScreen, setSelectedScreen) = remember { mutableStateOf<Screen>(Screen.Home) }
 
     SideEffect {
         setSwitchedOn(isAdaptiveState)
         setVibrationMode(isVibrationModeState)
+    }
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val selectedScreen = when (navBackStackEntry?.destination?.route) {
+        Screen.Home.route -> Screen.Home
+        Screen.Settings.route -> Screen.Settings
+        else -> Screen.Home
     }
 
     Scaffold(topBar = {
@@ -85,44 +96,46 @@ fun MainScreen(
             }
         )
     },
-        bottomBar = { BottomNavBar(selectedScreen, setSelectedScreen) },
-        content = { innerPadding ->
-            when (selectedScreen) {
-                is Screen.Home -> {
-                    Column(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                    ) {
-                        SwitchWithLabel(
-                            isSwitchedOn = isSwitchedOn,
-                            onCheckedChange = {
-                                setSwitchedOn(it)
-                                if (canWriteState) {
-                                    toggleAdaptiveBrightness()
-                                } else {
-                                    openPermissionSettings()
-                                }
-                            },
-                            label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
-                        )
-                        SwitchWithLabel(
-                            isSwitchedOn = isVibrationModeOn,
-                            onCheckedChange = {
-                                setVibrationMode(it)
-                                if (canWriteState) {
-                                    toggleVibrationMode()
-                                } else {
-                                    openPermissionSettings()
-                                }
-                            },
-                            label = if (isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
-                        )
-                    }
+        bottomBar = { BottomNavBar(navController) }
+    ) { innerPadding ->
+        NavHost(navController, startDestination = Screen.Home.route) {
+            composable(Screen.Home.route) {
+                Column(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                ) {
+                    SwitchWithLabel(
+                        isSwitchedOn = isSwitchedOn,
+                        onCheckedChange = {
+                            setSwitchedOn(it)
+                            if (canWriteState) {
+                                toggleAdaptiveBrightness()
+                            } else {
+                                openPermissionSettings()
+                            }
+                        },
+                        label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
+                    )
+                    SwitchWithLabel(
+                        isSwitchedOn = isVibrationModeOn,
+                        onCheckedChange = {
+                            setVibrationMode(it)
+                            if (canWriteState) {
+                                toggleVibrationMode()
+                            } else {
+                                openPermissionSettings()
+                            }
+                        },
+                        label = if (isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
+                    )
                 }
-
-                is Screen.Settings -> SettingsScreen(innerPadding)
             }
-        })
+
+            composable(Screen.Settings.route) {
+                SettingsScreen(innerPadding)
+            }
+        }
+    }
 }
 
 /**
