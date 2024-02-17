@@ -103,7 +103,7 @@ fun SettingsScreen(paddingValues: PaddingValues) {
 
 
     fun parseVersion(version: String): List<Int> {
-        return if (version.isNotEmpty()) {
+        return if (version.isNotEmpty() && version.all { it.isDigit() || it == '.' }) {
             version.removePrefix("v").split(".").map { it.toInt() }
         } else {
             listOf(0)
