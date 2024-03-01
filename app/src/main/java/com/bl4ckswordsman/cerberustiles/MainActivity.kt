@@ -87,9 +87,11 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         _isAdaptive.value = !(_isAdaptive.value ?: false)
     }
 
-    private fun toggleVibrationMode() {
-        SettingsUtils.Vibration.toggleVibrationMode(this)
-        _isVibrationMode.value = !(_isVibrationMode.value ?: false)
+    private fun toggleVibrationMode(): Boolean {
+        val isToggled = SettingsUtils.Vibration.toggleVibrationMode(this) { newValue ->
+            _isVibrationMode.value = newValue
+        }
+        return isToggled
     }
 
 

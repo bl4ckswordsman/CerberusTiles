@@ -200,6 +200,12 @@ fun MarkdownText(markdown: String) {
     })
 }
 
+/**
+ * The release info of the app.
+ * @param currentVersion The current version of the app.
+ * @param latestVersion The latest version of the app.
+ * @param releaseNotes The release notes of the latest version.
+ */
 data class ReleaseInfo(
     val currentVersion: String, val latestVersion: String, val releaseNotes: String
 )

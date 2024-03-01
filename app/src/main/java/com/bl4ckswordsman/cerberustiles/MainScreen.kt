@@ -49,7 +49,7 @@ data class MainScreenScaffoldParams(
     val openPermissionSettings: () -> Unit,
     val isVibrationModeOn: Boolean,
     val setVibrationMode: (Boolean) -> Unit,
-    val toggleVibrationMode: () -> Unit
+    val toggleVibrationMode: () -> Boolean
 )
 
 /**
@@ -60,7 +60,7 @@ data class MainScreenParams(
     val isAdaptive: LiveData<Boolean>,
     val toggleAdaptiveBrightness: () -> Unit,
     val isVibrationMode: LiveData<Boolean>,
-    val toggleVibrationMode: () -> Unit,
+    val toggleVibrationMode: () -> Boolean,
     val openPermissionSettings: () -> Unit
 )
 
@@ -77,7 +77,7 @@ data class MainScreenNavHostParams(
     val openPermissionSettings: () -> Unit,
     val isVibrationModeOn: Boolean,
     val setVibrationMode: (Boolean) -> Unit,
-    val toggleVibrationMode: () -> Unit
+    val toggleVibrationMode: () -> Boolean
 )
 
 /**
@@ -163,10 +163,12 @@ fun MainScreenNavHost(params: MainScreenNavHostParams) {
 
                 SwitchWithLabel(
                     isSwitchedOn = params.isVibrationModeOn,
-                    onCheckedChange = {
-                        params.setVibrationMode(it)
+                    onCheckedChange = { isChecked ->
                         if (params.canWriteState) {
-                            params.toggleVibrationMode()
+                            val isToggled = params.toggleVibrationMode()
+                            if (isToggled) {
+                                params.setVibrationMode(isChecked)
+                            }
                         } else {
                             params.openPermissionSettings()
                         }
@@ -241,7 +243,7 @@ fun MainScreenPreview() {
         isAdaptive = MutableLiveData(true),
         toggleAdaptiveBrightness = {},
         isVibrationMode = MutableLiveData(true),
-        toggleVibrationMode = {},
+        toggleVibrationMode = { true },
         openPermissionSettings = {}
     ))
 }

@@ -53,6 +53,6 @@ class ToggleVibrationModeActivity : BaseToggleActivity() {
 
     /** Toggles the vibration mode setting. */
     override fun performAction() {
-        SettingsUtils.Vibration.toggleVibrationMode(this)
+        SettingsUtils.Vibration.toggleVibrationMode(this) { _ -> /*Do nothing*/}
     }
 }
