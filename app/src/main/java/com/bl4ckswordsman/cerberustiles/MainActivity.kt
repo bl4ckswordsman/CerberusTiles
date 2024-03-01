@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         _isVibrationMode.value = SettingsUtils.Vibration.isVibrationModeEnabled(this)
     }
 
-    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -59,12 +59,14 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         setContent {
             CustomTilesTheme {
                 MainScreen(
-                    canWrite = canWrite,
-                    isAdaptive = isAdaptive,
-                    toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
-                    isVibrationMode = isVibrationMode,
-                    toggleVibrationMode = ::toggleVibrationMode,
-                    openPermissionSettings = ::openPermissionSettings
+                    MainScreenParams(
+                        canWrite = canWrite,
+                        isAdaptive = isAdaptive,
+                        toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
+                        isVibrationMode = isVibrationMode,
+                        toggleVibrationMode = ::toggleVibrationMode,
+                        openPermissionSettings = ::openPermissionSettings
+                    )
                 )
             }
         }

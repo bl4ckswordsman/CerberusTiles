@@ -50,21 +50,55 @@ import com.bl4ckswordsman.cerberustiles.navbar.BottomNavBar
 import com.bl4ckswordsman.cerberustiles.navbar.Screen
 import com.bl4ckswordsman.cerberustiles.Constants as label
 
+/**
+ * Parameters for the main screen scaffold.
+ */
+data class MainScreenScaffoldParams(
+    val navController: NavHostController,
+    val selectedScreen: Screen,
+    val canWriteState: Boolean,
+    val isSwitchedOn: Boolean,
+    val setSwitchedOn: (Boolean) -> Unit,
+    val toggleAdaptiveBrightness: () -> Unit,
+    val openPermissionSettings: () -> Unit,
+    val isVibrationModeOn: Boolean,
+    val setVibrationMode: (Boolean) -> Unit,
+    val toggleVibrationMode: () -> Unit
+)
+
+/**
+ * Parameters for the main screen.
+ */
+data class MainScreenParams(
+    val canWrite: LiveData<Boolean>,
+    val isAdaptive: LiveData<Boolean>,
+    val toggleAdaptiveBrightness: () -> Unit,
+    val isVibrationMode: LiveData<Boolean>,
+    val toggleVibrationMode: () -> Unit,
+    val openPermissionSettings: () -> Unit
+)
+
+/**
+ * Parameters for the main screen nav host.
+ */
+data class MainScreenNavHostParams(
+    val navController: NavHostController,
+    val innerPadding: PaddingValues,
+    val canWriteState: Boolean,
+    val isSwitchedOn: Boolean,
+    val setSwitchedOn: (Boolean) -> Unit,
+    val toggleAdaptiveBrightness: () -> Unit,
+    val openPermissionSettings: () -> Unit,
+    val isVibrationModeOn: Boolean,
+    val setVibrationMode: (Boolean) -> Unit,
+    val toggleVibrationMode: () -> Unit
+)
+
+
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreenScaffold(
-    navController: NavHostController,
-    selectedScreen: Screen,
-    canWriteState: Boolean,
-    isSwitchedOn: Boolean,
-    setSwitchedOn: (Boolean) -> Unit,
-    toggleAdaptiveBrightness: () -> Unit,
-    openPermissionSettings: () -> Unit,
-    isVibrationModeOn: Boolean,
-    setVibrationMode: (Boolean) -> Unit,
-    toggleVibrationMode: () -> Unit
-) {
+fun MainScreenScaffold(params: MainScreenScaffoldParams) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -73,7 +107,7 @@ fun MainScreenScaffold(
                 ),
                 title = {
                     Text(
-                        text = when (selectedScreen) {
+                        text = when (params.selectedScreen) {
                             is Screen.Home -> label.HOME_SCREEN
                             is Screen.Settings -> label.SETTINGS_SCREEN
                         }
@@ -81,74 +115,66 @@ fun MainScreenScaffold(
                 }
             )
         },
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { BottomNavBar(params.navController) }
     ) { innerPadding ->
         MainScreenNavHost(
-            navController,
-            innerPadding,
-            canWriteState,
-            isSwitchedOn,
-            setSwitchedOn,
-            toggleAdaptiveBrightness,
-            openPermissionSettings,
-            isVibrationModeOn,
-            setVibrationMode,
-            toggleVibrationMode
+            MainScreenNavHostParams(
+                params.navController,
+                innerPadding,
+                params.canWriteState,
+                params.isSwitchedOn,
+                params.setSwitchedOn,
+                params.toggleAdaptiveBrightness,
+                params.openPermissionSettings,
+                params.isVibrationModeOn,
+                params.setVibrationMode,
+                params.toggleVibrationMode
+            )
         )
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun MainScreenNavHost(
-    navController: NavHostController,
-    innerPadding: PaddingValues,
-    canWriteState: Boolean,
-    isSwitchedOn: Boolean,
-    setSwitchedOn: (Boolean) -> Unit,
-    toggleAdaptiveBrightness: () -> Unit,
-    openPermissionSettings: () -> Unit,
-    isVibrationModeOn: Boolean,
-    setVibrationMode: (Boolean) -> Unit,
-    toggleVibrationMode: () -> Unit
-) {
+fun MainScreenNavHost(params: MainScreenNavHostParams) {
+
     val enterTrans : AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
             = { fadeIn() }
     val exitTrans : AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
             = { fadeOut() }
 
-    NavHost(navController, startDestination = Screen.Home.route) {
+    NavHost(params.navController, startDestination = Screen.Home.route) {
         composable(Screen.Home.route,
             enterTransition = enterTrans,
             exitTransition = exitTrans)
         {
             Column(
                 modifier = Modifier
-                    .padding(innerPadding)
+                    .padding(params.innerPadding)
             ) {
                 SwitchWithLabel(
-                    isSwitchedOn = isSwitchedOn,
+                    isSwitchedOn = params.isSwitchedOn,
                     onCheckedChange = {
-                        setSwitchedOn(it)
-                        if (canWriteState) {
-                            toggleAdaptiveBrightness()
+                        params.setSwitchedOn(it)
+                        if (params.canWriteState) {
+                            params.toggleAdaptiveBrightness()
                         } else {
-                            openPermissionSettings()
+                            params.openPermissionSettings()
                         }
                     },
-                    label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
+                    label = if (params.isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
                 )
                 SwitchWithLabel(
-                    isSwitchedOn = isVibrationModeOn,
+                    isSwitchedOn = params.isVibrationModeOn,
                     onCheckedChange = {
-                        setVibrationMode(it)
-                        if (canWriteState) {
-                            toggleVibrationMode()
+                        params.setVibrationMode(it)
+                        if (params.canWriteState) {
+                            params.toggleVibrationMode()
                         } else {
-                            openPermissionSettings()
+                            params.openPermissionSettings()
                         }
                     },
-                    label = if (isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
+                    label = if (params.isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
                 )
             }
         }
@@ -157,7 +183,7 @@ fun MainScreenNavHost(
             enterTransition = enterTrans,
             exitTransition = exitTrans)
         {
-            SettingsScreen(innerPadding)
+            SettingsScreen(params.innerPadding)
         }
     }
 }
@@ -165,24 +191,15 @@ fun MainScreenNavHost(
 /**
  * The main screen of the app.
  *
- * @param canWrite Whether the app has the WRITE_SETTINGS permission.
- * @param isAdaptive Whether adaptive brightness is enabled.
- * @param toggleAdaptiveBrightness Function to toggle adaptive brightness.
+ * @param params The parameters for the main screen.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun MainScreen(
-    canWrite: LiveData<Boolean>,
-    isAdaptive: LiveData<Boolean>,
-    toggleAdaptiveBrightness: () -> Unit,
-    isVibrationMode: LiveData<Boolean>,
-    toggleVibrationMode: () -> Unit,
-    openPermissionSettings: () -> Unit
-) {
+fun MainScreen(params: MainScreenParams) {
     val navController = rememberNavController()
-    val canWriteState by canWrite.observeAsState(initial = false)
-    val isAdaptiveState by isAdaptive.observeAsState(initial = false)
-    val isVibrationModeState by isVibrationMode.observeAsState(initial = false)
+    val canWriteState by params.canWrite.observeAsState(initial = false)
+    val isAdaptiveState by params.isAdaptive.observeAsState(initial = false)
+    val isVibrationModeState by params.isVibrationMode.observeAsState(initial = false)
 
     val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptiveState) }
     val (isVibrationModeOn, setVibrationMode) = remember { mutableStateOf(isVibrationModeState) }
@@ -200,16 +217,18 @@ fun MainScreen(
     }
 
     MainScreenScaffold(
-        navController,
-        selectedScreen,
-        canWriteState,
-        isSwitchedOn,
-        setSwitchedOn,
-        toggleAdaptiveBrightness,
-        openPermissionSettings,
-        isVibrationModeOn,
-        setVibrationMode,
-        toggleVibrationMode
+        MainScreenScaffoldParams(
+            navController,
+            selectedScreen,
+            canWriteState,
+            isSwitchedOn,
+            setSwitchedOn,
+            params.toggleAdaptiveBrightness,
+            params.openPermissionSettings,
+            isVibrationModeOn,
+            setVibrationMode,
+            params.toggleVibrationMode
+        )
     )
 }
 
@@ -260,10 +279,12 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen(canWrite = MutableLiveData(true),
-        toggleAdaptiveBrightness = {},
+    MainScreen(MainScreenParams(
+        canWrite = MutableLiveData(true),
         isAdaptive = MutableLiveData(true),
-        toggleVibrationMode = {},
+        toggleAdaptiveBrightness = {},
         isVibrationMode = MutableLiveData(true),
-        openPermissionSettings = {})
+        toggleVibrationMode = {},
+        openPermissionSettings = {}
+    ))
 }
