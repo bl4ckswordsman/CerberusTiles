@@ -14,6 +14,9 @@ import kotlinx.coroutines.withContext
  * Helper class to create shortcuts.
  */
 class ShortcutHelper(private val context: Context) {
+    /**
+     * Creates all the shortcuts for the app.
+     */
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     suspend fun createAllShortcuts() {
         withContext(Dispatchers.IO) {

@@ -30,10 +30,12 @@ abstract class BaseToggleActivity : Activity() {
  * It uses BaseToggleActivity as a base class.
  */
 class ToggleAdaptiveBrightnessActivity : BaseToggleActivity() {
+    /** Checks if the app has the necessary permissions. */
     override fun hasRequiredPermissions(): Boolean {
         return Settings.System.canWrite(this)
     }
 
+    /** Toggles the adaptive brightness setting. */
     override fun performAction() {
         SettingsUtils.Brightness.toggleAdaptiveBrightness(this)
     }
@@ -44,11 +46,13 @@ class ToggleAdaptiveBrightnessActivity : BaseToggleActivity() {
  * It uses BaseToggleActivity as a base class.
  */
 class ToggleVibrationModeActivity : BaseToggleActivity() {
+    /** Checks if the app has the necessary permissions. */
     override fun hasRequiredPermissions(): Boolean {
         return true
     }
 
+    /** Toggles the vibration mode setting. */
     override fun performAction() {
-        SettingsUtils.Vibration.toggleVibrationMode(this)
+        SettingsUtils.Vibration.toggleVibrationMode(this) { _ -> /*Do nothing*/}
     }
 }

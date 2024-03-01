@@ -2,23 +2,16 @@ package com.bl4ckswordsman.cerberustiles
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -28,12 +21,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -43,27 +37,168 @@ import com.bl4ckswordsman.cerberustiles.navbar.Screen
 import com.bl4ckswordsman.cerberustiles.Constants as label
 
 /**
- * The main screen of the app.
+ * Parameters for the main screen scaffold.
+ */
+data class MainScreenScaffoldParams(
+    val navController: NavHostController,
+    val selectedScreen: Screen,
+    val canWriteState: Boolean,
+    val isSwitchedOn: Boolean,
+    val setSwitchedOn: (Boolean) -> Unit,
+    val toggleAdaptiveBrightness: () -> Unit,
+    val openPermissionSettings: () -> Unit,
+    val isVibrationModeOn: Boolean,
+    val setVibrationMode: (Boolean) -> Unit,
+    val toggleVibrationMode: () -> Boolean
+)
+
+/**
+ * Parameters for the main screen.
+ */
+data class MainScreenParams(
+    val canWrite: LiveData<Boolean>,
+    val isAdaptive: LiveData<Boolean>,
+    val toggleAdaptiveBrightness: () -> Unit,
+    val isVibrationMode: LiveData<Boolean>,
+    val toggleVibrationMode: () -> Boolean,
+    val openPermissionSettings: () -> Unit
+)
+
+/**
+ * Parameters for the main screen nav host.
+ */
+data class MainScreenNavHostParams(
+    val navController: NavHostController,
+    val innerPadding: PaddingValues,
+    val canWriteState: Boolean,
+    val isSwitchedOn: Boolean,
+    val setSwitchedOn: (Boolean) -> Unit,
+    val toggleAdaptiveBrightness: () -> Unit,
+    val openPermissionSettings: () -> Unit,
+    val isVibrationModeOn: Boolean,
+    val setVibrationMode: (Boolean) -> Unit,
+    val toggleVibrationMode: () -> Boolean
+)
+
+/**
+ * The main screen scaffold that contains the top bar, bottom bar, and the main screen navigation host.
  *
- * @param canWrite Whether the app has the WRITE_SETTINGS permission.
- * @param isAdaptive Whether adaptive brightness is enabled.
- * @param toggleAdaptiveBrightness Function to toggle adaptive brightness.
+ * @param params The parameters for the main screen scaffold.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
-    canWrite: LiveData<Boolean>,
-    isAdaptive: LiveData<Boolean>,
-    toggleAdaptiveBrightness: () -> Unit,
-    isVibrationMode: LiveData<Boolean>,
-    toggleVibrationMode: () -> Unit,
-    openPermissionSettings: () -> Unit
-) {
+fun MainScreenScaffold(params: MainScreenScaffoldParams) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+
+                ),
+                title = {
+                    Text(
+                        text = when (params.selectedScreen) {
+                            is Screen.Home -> label.HOME_SCREEN
+                            is Screen.Settings -> label.SETTINGS_SCREEN
+                        }
+                    )
+                }
+            )
+        },
+        bottomBar = { BottomNavBar(params.navController) }
+    ) { innerPadding ->
+        MainScreenNavHost(
+            MainScreenNavHostParams(
+                params.navController,
+                innerPadding,
+                params.canWriteState,
+                params.isSwitchedOn,
+                params.setSwitchedOn,
+                params.toggleAdaptiveBrightness,
+                params.openPermissionSettings,
+                params.isVibrationModeOn,
+                params.setVibrationMode,
+                params.toggleVibrationMode
+            )
+        )
+    }
+}
+
+/**
+ * The main screen navigation host that handles the navigation between screens.
+ *
+ * @param params The parameters for the main screen nav host.
+ */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun MainScreenNavHost(params: MainScreenNavHostParams) {
+
+    val enterTrans : AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+            = { fadeIn() }
+    val exitTrans : AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+            = { fadeOut() }
+
+    NavHost(params.navController, startDestination = Screen.Home.route) {
+        composable(Screen.Home.route,
+            enterTransition = enterTrans,
+            exitTransition = exitTrans)
+        {
+            Column(
+                modifier = Modifier
+                    .padding(params.innerPadding)
+            ) {
+                SwitchWithLabel(
+                    isSwitchedOn = params.isSwitchedOn,
+                    onCheckedChange = {
+                        params.setSwitchedOn(it)
+                        if (params.canWriteState) {
+                            params.toggleAdaptiveBrightness()
+                        } else {
+                            params.openPermissionSettings()
+                        }
+                    },
+                    label = if (params.isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
+                )
+                BrightnessSlider(context = LocalContext.current)
+
+                SwitchWithLabel(
+                    isSwitchedOn = params.isVibrationModeOn,
+                    onCheckedChange = { isChecked ->
+                        if (params.canWriteState) {
+                            val isToggled = params.toggleVibrationMode()
+                            if (isToggled) {
+                                params.setVibrationMode(isChecked)
+                            }
+                        } else {
+                            params.openPermissionSettings()
+                        }
+                    },
+                    label = if (params.isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
+                )
+            }
+        }
+
+        composable(Screen.Settings.route,
+            enterTransition = enterTrans,
+            exitTransition = exitTrans)
+        {
+            SettingsScreen(params.innerPadding)
+        }
+    }
+}
+
+/**
+ * The main screen of the app.
+ *
+ * @param params The parameters for the main screen.
+ */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun MainScreen(params: MainScreenParams) {
     val navController = rememberNavController()
-    val canWriteState by canWrite.observeAsState(initial = false)
-    val isAdaptiveState by isAdaptive.observeAsState(initial = false)
-    val isVibrationModeState by isVibrationMode.observeAsState(initial = false)
+    val canWriteState by params.canWrite.observeAsState(initial = false)
+    val isAdaptiveState by params.isAdaptive.observeAsState(initial = false)
+    val isVibrationModeState by params.isVibrationMode.observeAsState(initial = false)
 
     val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptiveState) }
     val (isVibrationModeOn, setVibrationMode) = remember { mutableStateOf(isVibrationModeState) }
@@ -80,102 +215,20 @@ fun MainScreen(
         else -> Screen.Home
     }
 
-    Scaffold(topBar = {
-        TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(
-                //containerColor = MaterialTheme.colorScheme.secondaryContainer, // removing this causes a nice immersive effect
-                titleContentColor = MaterialTheme.colorScheme.primary,
-            ),
-            title = {
-                Text(
-                    text = when (selectedScreen) {
-                        is Screen.Home -> label.HOME_SCREEN
-                        is Screen.Settings -> label.SETTINGS_SCREEN
-                    }
-                )
-            }
+    MainScreenScaffold(
+        MainScreenScaffoldParams(
+            navController,
+            selectedScreen,
+            canWriteState,
+            isSwitchedOn,
+            setSwitchedOn,
+            params.toggleAdaptiveBrightness,
+            params.openPermissionSettings,
+            isVibrationModeOn,
+            setVibrationMode,
+            params.toggleVibrationMode
         )
-    },
-        bottomBar = { BottomNavBar(navController) }
-    ) { innerPadding ->
-        NavHost(navController, startDestination = Screen.Home.route) {
-            composable(Screen.Home.route) {
-                Column(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                ) {
-                    SwitchWithLabel(
-                        isSwitchedOn = isSwitchedOn,
-                        onCheckedChange = {
-                            setSwitchedOn(it)
-                            if (canWriteState) {
-                                toggleAdaptiveBrightness()
-                            } else {
-                                openPermissionSettings()
-                            }
-                        },
-                        label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
-                    )
-                    SwitchWithLabel(
-                        isSwitchedOn = isVibrationModeOn,
-                        onCheckedChange = {
-                            setVibrationMode(it)
-                            if (canWriteState) {
-                                toggleVibrationMode()
-                            } else {
-                                openPermissionSettings()
-                            }
-                        },
-                        label = if (isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
-                    )
-                }
-            }
-
-            composable(Screen.Settings.route) {
-                SettingsScreen(innerPadding)
-            }
-        }
-    }
-}
-
-/**
- * A switch with a label. The label is clickable and toggles the switch.
- */
-@Composable
-fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, label: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 12.dp, end = 12.dp, top = 12.dp),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-        ),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onCheckedChange(!isSwitchedOn) }
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = label)
-            Switch(checked = isSwitchedOn,
-                onCheckedChange = { onCheckedChange(it) },
-                thumbContent = if (isSwitchedOn) {
-                    {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = null,
-                            modifier = Modifier.size(SwitchDefaults.IconSize),
-                        )
-                    }
-                } else {
-                    null
-                })
-        }
-    }
+    )
 }
 
 /**
@@ -185,10 +238,12 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen(canWrite = MutableLiveData(true),
-        toggleAdaptiveBrightness = {},
+    MainScreen(MainScreenParams(
+        canWrite = MutableLiveData(true),
         isAdaptive = MutableLiveData(true),
-        toggleVibrationMode = {},
+        toggleAdaptiveBrightness = {},
         isVibrationMode = MutableLiveData(true),
-        openPermissionSettings = {})
+        toggleVibrationMode = { true },
+        openPermissionSettings = {}
+    ))
 }

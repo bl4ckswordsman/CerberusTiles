@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     /** TODO: Use viewModelScope for LiveData instead of using MutableLiveData, this ensures that
      * the LiveData is cleared when the ViewModel is cleared.**/
 
+    
     private val shortcutHelper by lazy { ShortcutHelper(this) }
 
     private val _canWrite = MutableLiveData<Boolean>()
@@ -50,7 +51,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         _isVibrationMode.value = SettingsUtils.Vibration.isVibrationModeEnabled(this)
     }
 
-    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -58,12 +59,14 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         setContent {
             CustomTilesTheme {
                 MainScreen(
-                    canWrite = canWrite,
-                    isAdaptive = isAdaptive,
-                    toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
-                    isVibrationMode = isVibrationMode,
-                    toggleVibrationMode = ::toggleVibrationMode,
-                    openPermissionSettings = ::openPermissionSettings
+                    MainScreenParams(
+                        canWrite = canWrite,
+                        isAdaptive = isAdaptive,
+                        toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
+                        isVibrationMode = isVibrationMode,
+                        toggleVibrationMode = ::toggleVibrationMode,
+                        openPermissionSettings = ::openPermissionSettings
+                    )
                 )
             }
         }
@@ -84,9 +87,11 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         _isAdaptive.value = !(_isAdaptive.value ?: false)
     }
 
-    private fun toggleVibrationMode() {
-        SettingsUtils.Vibration.toggleVibrationMode(this)
-        _isVibrationMode.value = !(_isVibrationMode.value ?: false)
+    private fun toggleVibrationMode(): Boolean {
+        val isToggled = SettingsUtils.Vibration.toggleVibrationMode(this) { newValue ->
+            _isVibrationMode.value = newValue
+        }
+        return isToggled
     }
 
 
