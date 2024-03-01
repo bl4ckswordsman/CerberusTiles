@@ -22,6 +22,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -79,7 +80,11 @@ data class MainScreenNavHostParams(
     val toggleVibrationMode: () -> Unit
 )
 
-
+/**
+ * The main screen scaffold that contains the top bar, bottom bar, and the main screen navigation host.
+ *
+ * @param params The parameters for the main screen scaffold.
+ */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,6 +124,11 @@ fun MainScreenScaffold(params: MainScreenScaffoldParams) {
     }
 }
 
+/**
+ * The main screen navigation host that handles the navigation between screens.
+ *
+ * @param params The parameters for the main screen nav host.
+ */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun MainScreenNavHost(params: MainScreenNavHostParams) {
@@ -149,6 +159,8 @@ fun MainScreenNavHost(params: MainScreenNavHostParams) {
                     },
                     label = if (params.isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
                 )
+                BrightnessSlider(context = LocalContext.current)
+
                 SwitchWithLabel(
                     isSwitchedOn = params.isVibrationModeOn,
                     onCheckedChange = {

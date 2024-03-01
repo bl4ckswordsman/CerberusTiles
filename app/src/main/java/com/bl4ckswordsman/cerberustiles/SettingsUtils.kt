@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.provider.Settings
 import android.widget.Toast
+import kotlin.math.pow
 
 /** Utilities for different settings. */
 object SettingsUtils {
@@ -33,6 +34,24 @@ object SettingsUtils {
                 showToast(context, "Adaptive brightness", !isAdaptive)
             }
         }
+
+        fun getScreenBrightness(context: Context): Int {
+            return Settings.System.getInt(
+                context.contentResolver, Settings.System.SCREEN_BRIGHTNESS
+            )
+        }
+
+        fun setScreenBrightness(context: Context, brightness: Float) {
+            if (Settings.System.canWrite(context)) {
+                // Convert the brightness value to a 0-255 range
+                val brightnessValue = (255.0.pow(brightness.toDouble())).toInt()
+                Settings.System.putInt(
+                    context.contentResolver,
+                    Settings.System.SCREEN_BRIGHTNESS,
+                    brightnessValue
+                )
+            }
+        }
     }
 
     object Vibration {
@@ -53,5 +72,6 @@ object SettingsUtils {
         }
     }
 }
+
 
 // TODO: Add other settings utilities here
