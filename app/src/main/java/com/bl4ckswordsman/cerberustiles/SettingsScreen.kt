@@ -19,13 +19,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,19 +54,22 @@ fun SettingsScreen(paddingValues: PaddingValues) {
 
     val context = LocalContext.current
 
-    val downloadId = remember { mutableStateOf(-1L) }
+    val downloadId = remember { mutableLongStateOf(-1L) }
     val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+
+    val isUpdateAvailable = remember { mutableStateOf(false) }
+
 
     val onDownloadComplete = object : BroadcastReceiver() {
         override fun onReceive(context: Context, downloadIntent: Intent) {
             Log.d("Download", "Download complete")
-            if (downloadId.value == downloadIntent.getLongExtra(
+            if (downloadId.longValue == downloadIntent.getLongExtra(
                     DownloadManager.EXTRA_DOWNLOAD_ID,
                     -1L
                 )
             ) {
                 val query = DownloadManager.Query()
-                query.setFilterById(downloadId.value)
+                query.setFilterById(downloadId.longValue)
                 val cursor = downloadManager.query(query)
                 if (cursor.moveToFirst()) {
                     val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
@@ -101,18 +105,22 @@ fun SettingsScreen(paddingValues: PaddingValues) {
         releaseInfo.value = fetchLatestReleaseInfo(context)
     }
 
-
+    /**
+     * Parses the version string into a list of integers.
+     */
     fun parseVersion(version: String): List<Int> {
-        return if (version.isNotEmpty() && version.all { it.isDigit() || it == '.' }) {
-            version.removePrefix("v").split(".").map { it.toInt() }
+        return if (version.isNotEmpty() && version.all { it.isDigit() || it == '.' || it == 'v' }) {
+            val versionWithoutPrefix = if (version.startsWith("v")) version.removePrefix("v") else version
+            if (versionWithoutPrefix.contains(".")) {
+                versionWithoutPrefix.split(".").map { it.toInt() }
+            } else {
+                listOf(versionWithoutPrefix.toInt())
+            }
         } else {
+            Log.d("Parse Error", "Invalid version: $version")
             listOf(0)
         }
     }
-
-    val currentVersionNumbers = parseVersion(releaseInfo.value.currentVersion)
-    val latestVersionNumbers = parseVersion(releaseInfo.value.latestVersion)
-    val isUpdateAvailable = currentVersionNumbers.zip(latestVersionNumbers).any { (current, latest) -> current < latest }
 
     val versionManager = remember { VersionManager() }
 
@@ -121,31 +129,59 @@ fun SettingsScreen(paddingValues: PaddingValues) {
 
 
     Column(modifier = Modifier.padding(paddingValues)) {
-        ListItem(modifier = Modifier.clickable { showDialog.value = true },
+        ListItem(modifier = Modifier.clickable {
+            coroutineScope.launch {
+                // Fetch the latest release info when the ListItem is clicked
+                releaseInfo.value = fetchLatestReleaseInfo(context)
+
+                // Parse the version numbers
+                val currentVersionNumbers = parseVersion(releaseInfo.value.currentVersion)
+                val latestVersionNumbers = parseVersion(releaseInfo.value.latestVersion)
+
+                /**
+                 * Pads the list with the specified value to the specified size.
+                 */
+                fun List<Int>.padEnd(size: Int, value: Int = 0): List<Int> {
+                    return if (size > this.size) this + List(size - this.size) { value } else this
+                }
+
+                val maxLength = maxOf(currentVersionNumbers.size, latestVersionNumbers.size)
+                val paddedCurrentVersionNumbers = currentVersionNumbers.padEnd(maxLength, 0)
+                val paddedLatestVersionNumbers = latestVersionNumbers.padEnd(maxLength, 0)
+                isUpdateAvailable.value = paddedCurrentVersionNumbers.zip(paddedLatestVersionNumbers).any { (current: Int, latest: Int) -> current < latest }
+
+                /*Log.d("Update", "Update available: ${isUpdateAvailable.value}")
+                Log.d("Current Version", "Current version: $currentVersionNumbers")
+                Log.d("Latest Version", "Latest version: $latestVersionNumbers")*/ //TODO: Remove logs
+
+                // Show the dialog
+                showDialog.value = true
+            }
+        },
             headlineContent = { Text("App Version") },
             supportingContent = { Text("Click to view release notes") })
     }
 
     if (showDialog.value) {
         AlertDialog(onDismissRequest = { showDialog.value = false }, icon = {
-            if (isUpdateAvailable) {
+            if (isUpdateAvailable.value) {
                 Icon(
                     painter = painterResource(id = R.drawable.outline_new_releases_24),
                     contentDescription = "Update available"
                 )
             }
         }, title = {
-            if (isUpdateAvailable) {
+            if (isUpdateAvailable.value) {
                 Text("New update available")
             } else {
                 Text("Release Information")
             }
         }, text = {
             Column {
-                Divider()
+                HorizontalDivider()
                 Text("Current Version: v${releaseInfo.value.currentVersion}")
                 Text("Latest Version: ${releaseInfo.value.latestVersion}")
-                Divider()
+                HorizontalDivider()
                 Spacer(modifier = Modifier.padding(8.dp))
 
                 Text("Latest Release Notes:")
@@ -158,7 +194,7 @@ fun SettingsScreen(paddingValues: PaddingValues) {
         },
             // Add an update button if an update is available
             dismissButton = {
-                if (isUpdateAvailable) {
+                if (isUpdateAvailable.value) {
                     Button(onClick = {
                         coroutineScope.launch {
                             val url = versionManager.getLatestReleaseApkUrl()
@@ -169,7 +205,7 @@ fun SettingsScreen(paddingValues: PaddingValues) {
                                     "CerberusTiles-update.apk"
                                 )
                                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                                downloadId.value = downloadManager.enqueue(request)
+                                downloadId.longValue = downloadManager.enqueue(request)
                             } else {
                                 Log.d("Download Error", "Invalid URL: $url")
                             }
