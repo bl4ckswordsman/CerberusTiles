@@ -58,7 +58,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.runtime:runtime-android:1.6.1")
-    implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.2")
     implementation("androidx.compose.runtime:runtime-rxjava2:1.6.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation ("io.noties.markwon:core:4.6.2")

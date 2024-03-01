@@ -182,6 +182,10 @@ fun SettingsScreen(paddingValues: PaddingValues) {
     }
 }
 
+/**
+ * A composable that displays markdown text using Markwon.
+ * @param markdown The markdown text to display.
+ */
 @Composable
 fun MarkdownText(markdown: String) {
     val markdownContext = LocalContext.current
@@ -196,10 +200,21 @@ fun MarkdownText(markdown: String) {
     })
 }
 
+/**
+ * The release info of the app.
+ * @param currentVersion The current version of the app.
+ * @param latestVersion The latest version of the app.
+ * @param releaseNotes The release notes of the latest version.
+ */
 data class ReleaseInfo(
     val currentVersion: String, val latestVersion: String, val releaseNotes: String
 )
 
+/**
+ * Fetches the latest release info from the server.
+ * @param context The context of the app.
+ * @return The latest release info.
+ */
 suspend fun fetchLatestReleaseInfo(context: Context): ReleaseInfo {
     val versionManager = VersionManager()
     val appVersion = versionManager.getCurrentAppVersion(context)
@@ -210,6 +225,7 @@ suspend fun fetchLatestReleaseInfo(context: Context): ReleaseInfo {
 }
 
 
+/** A preview of the settings screen. */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Preview(showBackground = true)
 @Composable
