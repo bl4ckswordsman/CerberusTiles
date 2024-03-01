@@ -69,7 +69,7 @@ fun MainScreenScaffold(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+
                 ),
                 title = {
                     Text(
@@ -170,7 +170,6 @@ fun MainScreenNavHost(
  * @param toggleAdaptiveBrightness Function to toggle adaptive brightness.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     canWrite: LiveData<Boolean>,
