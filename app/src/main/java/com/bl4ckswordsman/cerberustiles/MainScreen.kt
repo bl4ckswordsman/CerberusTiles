@@ -2,6 +2,11 @@ package com.bl4ckswordsman.cerberustiles
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -106,10 +112,15 @@ fun MainScreenNavHost(
     setVibrationMode: (Boolean) -> Unit,
     toggleVibrationMode: () -> Unit
 ) {
-
+    val enterTrans : AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+            = { fadeIn() }
+    val exitTrans : AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+            = { fadeOut() }
 
     NavHost(navController, startDestination = Screen.Home.route) {
-        composable(Screen.Home.route)
+        composable(Screen.Home.route,
+            enterTransition = enterTrans,
+            exitTransition = exitTrans)
         {
             Column(
                 modifier = Modifier
@@ -142,7 +153,9 @@ fun MainScreenNavHost(
             }
         }
 
-        composable(Screen.Settings.route)
+        composable(Screen.Settings.route,
+            enterTransition = enterTrans,
+            exitTransition = exitTrans)
         {
             SettingsScreen(innerPadding)
         }
