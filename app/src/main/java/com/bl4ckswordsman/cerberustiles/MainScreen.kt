@@ -232,7 +232,7 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onCheckedChange(!isSwitchedOn) }
-                .padding(12.dp),
+                .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
