@@ -22,6 +22,7 @@ object SettingsUtils {
             ) == 1
         }
 
+        /** Toggles the adaptive brightness setting. */
         fun toggleAdaptiveBrightness(context: Context) {
             if (Settings.System.canWrite(context)) {
                 val isAdaptive = isAdaptiveBrightnessEnabled(context)
@@ -35,12 +36,14 @@ object SettingsUtils {
             }
         }
 
+        /** Gets the screen brightness. */
         fun getScreenBrightness(context: Context): Int {
             return Settings.System.getInt(
                 context.contentResolver, Settings.System.SCREEN_BRIGHTNESS
             )
         }
 
+        /** Sets the screen brightness. */
         fun setScreenBrightness(context: Context, brightness: Float) {
             if (Settings.System.canWrite(context)) {
                 // Convert the brightness value to a 0-255 range
@@ -55,11 +58,13 @@ object SettingsUtils {
     }
 
     object Vibration {
+        /** Checks if the vibration mode is enabled. */
         fun isVibrationModeEnabled(context: Context): Boolean {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             return audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE
         }
 
+        /** Toggles the vibration mode. */
         fun toggleVibrationMode(context: Context) {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             if (audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
