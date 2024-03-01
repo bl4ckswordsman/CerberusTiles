@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     /** TODO: Use viewModelScope for LiveData instead of using MutableLiveData, this ensures that
      * the LiveData is cleared when the ViewModel is cleared.**/
 
+    
     private val shortcutHelper by lazy { ShortcutHelper(this) }
 
     private val _canWrite = MutableLiveData<Boolean>()

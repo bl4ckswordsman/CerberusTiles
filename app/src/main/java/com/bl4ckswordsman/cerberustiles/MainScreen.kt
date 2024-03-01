@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -41,6 +43,111 @@ import androidx.navigation.compose.rememberNavController
 import com.bl4ckswordsman.cerberustiles.navbar.BottomNavBar
 import com.bl4ckswordsman.cerberustiles.navbar.Screen
 import com.bl4ckswordsman.cerberustiles.Constants as label
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreenScaffold(
+    navController: NavHostController,
+    selectedScreen: Screen,
+    canWriteState: Boolean,
+    isSwitchedOn: Boolean,
+    setSwitchedOn: (Boolean) -> Unit,
+    toggleAdaptiveBrightness: () -> Unit,
+    openPermissionSettings: () -> Unit,
+    isVibrationModeOn: Boolean,
+    setVibrationMode: (Boolean) -> Unit,
+    toggleVibrationMode: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text(
+                        text = when (selectedScreen) {
+                            is Screen.Home -> label.HOME_SCREEN
+                            is Screen.Settings -> label.SETTINGS_SCREEN
+                        }
+                    )
+                }
+            )
+        },
+        bottomBar = { BottomNavBar(navController) }
+    ) { innerPadding ->
+        MainScreenNavHost(
+            navController,
+            innerPadding,
+            canWriteState,
+            isSwitchedOn,
+            setSwitchedOn,
+            toggleAdaptiveBrightness,
+            openPermissionSettings,
+            isVibrationModeOn,
+            setVibrationMode,
+            toggleVibrationMode
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun MainScreenNavHost(
+    navController: NavHostController,
+    innerPadding: PaddingValues,
+    canWriteState: Boolean,
+    isSwitchedOn: Boolean,
+    setSwitchedOn: (Boolean) -> Unit,
+    toggleAdaptiveBrightness: () -> Unit,
+    openPermissionSettings: () -> Unit,
+    isVibrationModeOn: Boolean,
+    setVibrationMode: (Boolean) -> Unit,
+    toggleVibrationMode: () -> Unit
+) {
+
+
+    NavHost(navController, startDestination = Screen.Home.route) {
+        composable(Screen.Home.route)
+        {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+            ) {
+                SwitchWithLabel(
+                    isSwitchedOn = isSwitchedOn,
+                    onCheckedChange = {
+                        setSwitchedOn(it)
+                        if (canWriteState) {
+                            toggleAdaptiveBrightness()
+                        } else {
+                            openPermissionSettings()
+                        }
+                    },
+                    label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
+                )
+                SwitchWithLabel(
+                    isSwitchedOn = isVibrationModeOn,
+                    onCheckedChange = {
+                        setVibrationMode(it)
+                        if (canWriteState) {
+                            toggleVibrationMode()
+                        } else {
+                            openPermissionSettings()
+                        }
+                    },
+                    label = if (isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
+                )
+            }
+        }
+
+        composable(Screen.Settings.route)
+        {
+            SettingsScreen(innerPadding)
+        }
+    }
+}
 
 /**
  * The main screen of the app.
@@ -80,62 +187,18 @@ fun MainScreen(
         else -> Screen.Home
     }
 
-    Scaffold(topBar = {
-        TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(
-                //containerColor = MaterialTheme.colorScheme.secondaryContainer, // removing this causes a nice immersive effect
-                titleContentColor = MaterialTheme.colorScheme.primary,
-            ),
-            title = {
-                Text(
-                    text = when (selectedScreen) {
-                        is Screen.Home -> label.HOME_SCREEN
-                        is Screen.Settings -> label.SETTINGS_SCREEN
-                    }
-                )
-            }
-        )
-    },
-        bottomBar = { BottomNavBar(navController) }
-    ) { innerPadding ->
-        NavHost(navController, startDestination = Screen.Home.route) {
-            composable(Screen.Home.route) {
-                Column(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                ) {
-                    SwitchWithLabel(
-                        isSwitchedOn = isSwitchedOn,
-                        onCheckedChange = {
-                            setSwitchedOn(it)
-                            if (canWriteState) {
-                                toggleAdaptiveBrightness()
-                            } else {
-                                openPermissionSettings()
-                            }
-                        },
-                        label = if (isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
-                    )
-                    SwitchWithLabel(
-                        isSwitchedOn = isVibrationModeOn,
-                        onCheckedChange = {
-                            setVibrationMode(it)
-                            if (canWriteState) {
-                                toggleVibrationMode()
-                            } else {
-                                openPermissionSettings()
-                            }
-                        },
-                        label = if (isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
-                    )
-                }
-            }
-
-            composable(Screen.Settings.route) {
-                SettingsScreen(innerPadding)
-            }
-        }
-    }
+    MainScreenScaffold(
+        navController,
+        selectedScreen,
+        canWriteState,
+        isSwitchedOn,
+        setSwitchedOn,
+        toggleAdaptiveBrightness,
+        openPermissionSettings,
+        isVibrationModeOn,
+        setVibrationMode,
+        toggleVibrationMode
+    )
 }
 
 /**
