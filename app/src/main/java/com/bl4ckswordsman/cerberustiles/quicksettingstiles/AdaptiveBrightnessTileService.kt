@@ -6,6 +6,9 @@ import android.service.quicksettings.TileService
 import com.bl4ckswordsman.cerberustiles.R
 import com.bl4ckswordsman.cerberustiles.SettingsUtils
 
+/**
+ * A [TileService] that toggles the adaptive brightness setting when the user taps the tile.
+ */
 class AdaptiveBrightnessTileService : TileService() {
 
     override fun onStartListening() {

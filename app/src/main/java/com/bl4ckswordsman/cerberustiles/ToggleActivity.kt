@@ -20,8 +20,10 @@ abstract class BaseToggleActivity : Activity() {
         finish()
     }
 
+    /** Checks if the app has the necessary permissions. */
     abstract fun hasRequiredPermissions(): Boolean
 
+    /** Performs the action when the user taps the shortcut. */
     abstract fun performAction()
 }
 
