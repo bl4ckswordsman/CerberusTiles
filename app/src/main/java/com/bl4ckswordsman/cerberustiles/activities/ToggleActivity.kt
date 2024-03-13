@@ -1,8 +1,9 @@
-package com.bl4ckswordsman.cerberustiles
+package com.bl4ckswordsman.cerberustiles.activities
 
 import android.app.Activity
 import android.os.Bundle
 import android.provider.Settings
+import com.bl4ckswordsman.cerberustiles.SettingsUtils
 
 /**
  * An [Activity] that toggles a setting when the user taps the shortcut.
@@ -39,7 +40,10 @@ class ToggleAdaptiveBrightnessActivity : BaseToggleActivity() {
 
     /** Toggles the adaptive brightness setting. */
     override fun performAction() {
-        SettingsUtils.Brightness.toggleAdaptiveBrightness(this)
+        val params = SettingsUtils.ToggleSettingsParams(this) { _ ->
+            // Do nothing
+        }
+        SettingsUtils.Brightness.toggleAdaptiveBrightness(params)
     }
 }
 
@@ -55,6 +59,9 @@ class ToggleVibrationModeActivity : BaseToggleActivity() {
 
     /** Toggles the vibration mode setting. */
     override fun performAction() {
-        SettingsUtils.Vibration.toggleVibrationMode(this) { _ -> /*Do nothing*/}
+        val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
+            // Do nothing
+        }
+        SettingsUtils.Vibration.toggleVibrationMode(params)
     }
 }

@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.cerberustiles
+package com.bl4ckswordsman.cerberustiles.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -22,7 +22,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -89,24 +88,18 @@ data class MainScreenNavHostParams(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreenScaffold(params: MainScreenScaffoldParams) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
+    Scaffold(topBar = {
+        TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
 
-                ),
-                title = {
-                    Text(
-                        text = when (params.selectedScreen) {
-                            is Screen.Home -> label.HOME_SCREEN
-                            is Screen.Settings -> label.SETTINGS_SCREEN
-                        }
-                    )
+        ), title = {
+            Text(
+                text = when (params.selectedScreen) {
+                    is Screen.Home -> label.HOME_SCREEN
+                    is Screen.Settings -> label.SETTINGS_SCREEN
                 }
             )
-        },
-        bottomBar = { BottomNavBar(params.navController) }
-    ) { innerPadding ->
+        })
+    }, bottomBar = { BottomNavBar(params.navController) }) { innerPadding ->
         MainScreenNavHost(
             MainScreenNavHostParams(
                 params.navController,
@@ -133,56 +126,30 @@ fun MainScreenScaffold(params: MainScreenScaffoldParams) {
 @Composable
 fun MainScreenNavHost(params: MainScreenNavHostParams) {
 
-    val enterTrans : AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
-            = { fadeIn() }
-    val exitTrans : AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
-            = { fadeOut() }
+    val enterTrans: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
+        { fadeIn() }
+    val exitTrans: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
+        { fadeOut() }
 
     NavHost(params.navController, startDestination = Screen.Home.route) {
-        composable(Screen.Home.route,
-            enterTransition = enterTrans,
-            exitTransition = exitTrans)
-        {
+        composable(
+            Screen.Home.route, enterTransition = enterTrans, exitTransition = exitTrans
+        ) {
             Column(
-                modifier = Modifier
-                    .padding(params.innerPadding)
+                modifier = Modifier.padding(params.innerPadding)
             ) {
-                SwitchWithLabel(
+                val settingsCompParams = SettingsComponentsParams(
+                    canWriteState = params.canWriteState,
                     isSwitchedOn = params.isSwitchedOn,
-                    onCheckedChange = {
-                        params.setSwitchedOn(it)
-                        if (params.canWriteState) {
-                            params.toggleAdaptiveBrightness()
-                        } else {
-                            params.openPermissionSettings()
-                        }
-                    },
-                    label = if (params.isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
+                    setSwitchedOn = params.setSwitchedOn,
+                    toggleAdaptiveBrightness = params.toggleAdaptiveBrightness,
+                    openPermissionSettings = params.openPermissionSettings,
+                    isVibrationModeOn = params.isVibrationModeOn,
+                    setVibrationMode = params.setVibrationMode,
+                    toggleVibrationMode = params.toggleVibrationMode
                 )
-                BrightnessSlider(context = LocalContext.current)
-
-                SwitchWithLabel(
-                    isSwitchedOn = params.isVibrationModeOn,
-                    onCheckedChange = { isChecked ->
-                        if (params.canWriteState) {
-                            val isToggled = params.toggleVibrationMode()
-                            if (isToggled) {
-                                params.setVibrationMode(isChecked)
-                            }
-                        } else {
-                            params.openPermissionSettings()
-                        }
-                    },
-                    label = if (params.isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
-                )
+                SettingsComponents(settingsCompParams)
             }
-        }
-
-        composable(Screen.Settings.route,
-            enterTransition = enterTrans,
-            exitTransition = exitTrans)
-        {
-            SettingsScreen(params.innerPadding)
         }
     }
 }
@@ -238,12 +205,12 @@ fun MainScreen(params: MainScreenParams) {
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen(MainScreenParams(
-        canWrite = MutableLiveData(true),
+    MainScreen(
+        MainScreenParams(canWrite = MutableLiveData(true),
         isAdaptive = MutableLiveData(true),
         toggleAdaptiveBrightness = {},
         isVibrationMode = MutableLiveData(true),
         toggleVibrationMode = { true },
-        openPermissionSettings = {}
-    ))
+        openPermissionSettings = {})
+    )
 }

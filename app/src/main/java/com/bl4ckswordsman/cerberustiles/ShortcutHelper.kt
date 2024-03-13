@@ -7,6 +7,9 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.bl4ckswordsman.cerberustiles.activities.OverlayActivity
+import com.bl4ckswordsman.cerberustiles.activities.ToggleAdaptiveBrightnessActivity
+import com.bl4ckswordsman.cerberustiles.activities.ToggleVibrationModeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -56,8 +59,19 @@ class ShortcutHelper(private val context: Context) {
                 )
             )
 
+            val overlayShortcut = createShortcut(
+                CustomShortcutInfo(
+                    id = "overlay_shortcut",
+                    shortLabel = "Toolbox Overlay",
+                    longLabel = "Toolbox Overlay",
+                    icon = R.drawable.round_open_in_new_24,
+                    action = "com.bl4ckswordsman.cerberustiles.OPEN_OVERLAY",
+                    activityClass = OverlayActivity::class.java
+                )
+            )
+
             shortcutManager?.dynamicShortcuts =
-                listOf(adaptiveBrightnessShortcut, vibrationRingerModeShortcut)
+                listOf(adaptiveBrightnessShortcut, vibrationRingerModeShortcut, overlayShortcut)
         }
     }
 

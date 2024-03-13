@@ -1,4 +1,4 @@
-package com.bl4ckswordsman.cerberustiles
+package com.bl4ckswordsman.cerberustiles.ui
 
 import android.content.Context
 import androidx.compose.foundation.clickable
@@ -28,6 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.bl4ckswordsman.cerberustiles.R
+import com.bl4ckswordsman.cerberustiles.SettingsUtils
 import kotlin.math.ln
 
 /**

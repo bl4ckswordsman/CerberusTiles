@@ -1,7 +1,5 @@
-package com.bl4ckswordsman.cerberustiles
+package com.bl4ckswordsman.cerberustiles.activities
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -9,12 +7,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.bl4ckswordsman.cerberustiles.Constants.TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION
 import com.bl4ckswordsman.cerberustiles.Constants.TOGGLE_VIBRATION_MODE_ACTION
+import com.bl4ckswordsman.cerberustiles.SettingsUtils
+import com.bl4ckswordsman.cerberustiles.ShortcutHelper
+import com.bl4ckswordsman.cerberustiles.ui.MainScreen
+import com.bl4ckswordsman.cerberustiles.ui.MainScreenParams
+import com.bl4ckswordsman.cerberustiles.ui.OverlayDialog
+import com.bl4ckswordsman.cerberustiles.ui.OverlayDialogParams
 import com.bl4ckswordsman.cerberustiles.ui.theme.CustomTilesTheme
 import kotlinx.coroutines.launch
 
@@ -24,7 +30,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     /** TODO: Use viewModelScope for LiveData instead of using MutableLiveData, this ensures that
      * the LiveData is cleared when the ViewModel is cleared.**/
 
-    
+
     private val shortcutHelper by lazy { ShortcutHelper(this) }
 
     private val _canWrite = MutableLiveData<Boolean>()
@@ -53,21 +59,37 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(this)
         setContent {
+            val showOverlayDialog = remember { mutableStateOf(false) }
             CustomTilesTheme {
                 MainScreen(
-                    MainScreenParams(
-                        canWrite = canWrite,
-                        isAdaptive = isAdaptive,
-                        toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
-                        isVibrationMode = isVibrationMode,
-                        toggleVibrationMode = ::toggleVibrationMode,
-                        openPermissionSettings = ::openPermissionSettings
-                    )
+                    MainScreenParams(canWrite = canWrite,
+                    isAdaptive = isAdaptive,
+                    toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
+                    isVibrationMode = isVibrationMode,
+                    toggleVibrationMode = ::toggleVibrationMode,
+                    openPermissionSettings = { SettingsUtils.openPermissionSettings(this) })
                 )
+            }
+            val params = OverlayDialogParams(
+                showDialog = showOverlayDialog,
+                onDismiss = { showOverlayDialog.value = false },
+                canWrite = _canWrite,
+                isSwitchedOn = _isAdaptive.value ?: false,
+                setSwitchedOn = { _isAdaptive.value = it },
+                toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
+                openPermissionSettings = { SettingsUtils.openPermissionSettings(this) },
+                isVibrationModeOn = _isVibrationMode.value ?: false,
+                setVibrationMode = { _isVibrationMode.value = it },
+                toggleVibrationMode = ::toggleVibrationMode
+            )
+            OverlayDialog(params)
+            if (intent?.action == "com.bl4ckswordsman.cerberustiles.OPEN_OVERLAY") {
+                showOverlayDialog.value = true
             }
         }
 
@@ -78,28 +100,23 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         if (intent?.action == TOGGLE_VIBRATION_MODE_ACTION) {
             toggleVibrationMode()
         }
+
     }
 
 
     private fun toggleAdaptiveBrightness() {
-        SettingsUtils.Brightness.toggleAdaptiveBrightness(this)
+        val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
+            _isAdaptive.value = newValue
+        }
+        SettingsUtils.Brightness.toggleAdaptiveBrightness(params)
         // Update _isAdaptive after changing the setting
         _isAdaptive.value = !(_isAdaptive.value ?: false)
     }
 
     private fun toggleVibrationMode(): Boolean {
-        val isToggled = SettingsUtils.Vibration.toggleVibrationMode(this) { newValue ->
+        val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
             _isVibrationMode.value = newValue
         }
-        return isToggled
-    }
-
-
-    private fun openPermissionSettings() {
-        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
-            data = Uri.parse("package:${this@MainActivity.packageName}")
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        startActivity(intent)
+        return SettingsUtils.Vibration.toggleVibrationMode(params)
     }
 }

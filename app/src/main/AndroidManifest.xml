@@ -20,17 +20,16 @@
         android:theme="@style/Theme.CustomTiles"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ToggleAdaptiveBrightnessActivity"
+            android:name=".activities.ToggleAdaptiveBrightnessActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.bl4ckswordsman.cerberustiles.TOGGLE_ADAPTIVE_BRIGHTNESS" />
@@ -38,13 +37,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ToggleVibrationModeActivity"
+            android:name=".activities.ToggleVibrationModeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.bl4ckswordsman.cerberustiles.TOGGLE_VIBRATION_MODE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.OverlayActivity"
+            android:theme="@style/Theme.OverlayActivity" />
 
         <service
             android:name=".quicksettingstiles.AdaptiveBrightnessTileService"
