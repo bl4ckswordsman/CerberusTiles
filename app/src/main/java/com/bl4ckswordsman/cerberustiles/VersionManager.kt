@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import com.bl4ckswordsman.cerberustiles.Constants.UNKNOWN
+import com.bl4ckswordsman.cerberustiles.ui.ReleaseInfo
+import com.bl4ckswordsman.cerberustiles.ui.fetchLatestReleaseInfo
+import com.bl4ckswordsman.cerberustiles.ui.padEnd
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONException
@@ -105,7 +108,7 @@ class VersionManager {
     /**
      * Parses the version string into a list of integers.
      */
-    fun parseVersion(version: String): List<Int> {
+    private fun parseVersion(version: String): List<Int> {
         return if (isValidVersion(version)) {
             val versionWithoutPrefix = if (version.startsWith("v")) version.removePrefix("v") else version
             if (versionWithoutPrefix.contains(".")) {

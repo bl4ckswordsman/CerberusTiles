@@ -151,6 +151,20 @@ fun MainScreenNavHost(params: MainScreenNavHostParams) {
                 SettingsComponents(settingsCompParams)
             }
         }
+        composable(
+            Screen.Settings.route,
+            enterTransition = enterTrans,
+            exitTransition = exitTrans
+        )
+        {
+            val sharedParams = createSharedParams()
+            val settingsScreenParams = SettingsScreenParams(
+                paddingValues = params.innerPadding,
+                sharedParams = sharedParams
+            )
+
+            SettingsScreen(settingsScreenParams)
+        }
     }
 }
 
@@ -207,10 +221,10 @@ fun MainScreen(params: MainScreenParams) {
 fun MainScreenPreview() {
     MainScreen(
         MainScreenParams(canWrite = MutableLiveData(true),
-        isAdaptive = MutableLiveData(true),
-        toggleAdaptiveBrightness = {},
-        isVibrationMode = MutableLiveData(true),
-        toggleVibrationMode = { true },
-        openPermissionSettings = {})
+            isAdaptive = MutableLiveData(true),
+            toggleAdaptiveBrightness = {},
+            isVibrationMode = MutableLiveData(true),
+            toggleVibrationMode = { true },
+            openPermissionSettings = {})
     )
 }

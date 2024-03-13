@@ -146,14 +146,23 @@ class MainViewModel : ViewModel() {
     val isSwitchedOn = mutableStateOf(false)
     val isVibrationModeOn = mutableStateOf(false)
 
+    /**
+     * Updates the state of the canWrite setting.
+     */
     fun updateCanWrite(context: Context) {
         canWrite.value = SettingsUtils.canWriteSettings(context)
     }
 
+    /**
+     * Updates the state of the adaptive brightness setting.
+     */
     fun updateIsSwitchedOn(context: Context) {
         isSwitchedOn.value = SettingsUtils.Brightness.isAdaptiveBrightnessEnabled(context)
     }
 
+    /**
+     * Updates the state of the vibration mode setting.
+     */
     fun updateIsVibrationModeOn(context: Context) {
         isVibrationModeOn.value = SettingsUtils.Vibration.isVibrationModeEnabled(context)
     }
