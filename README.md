@@ -15,10 +15,6 @@
 </a>
 </p>
 
-
-
-
-
 ## Introduction
 
 Cerberus Tiles[^1] adds more quick settings tiles to your Google Pixel Phone. Ideal to be used with
@@ -31,16 +27,15 @@ Tested in a Google Pixel 8 Pro.
 |:---------------------:|:-------------:|:------------:|:-------------------:|
 |  Adaptive Brightness  |       ✅       |      ✅       |          ✅          |
 | Vibration Ringer Mode |       ✅       |      ✅       |          -          |
+|    Overlay dialog     |       -       |      ✅       |          -          |
 |           -           |               |              |                     |
 
 > [!NOTE]
 > More features coming soon.
 
-
-### Shoutout to:
+### Kudos to:
 
 [This cool Gradient Generator](https://doodad.dev/gradient-generator/), Bing Copilot for the
 generated app icon etc.
-
 
 [^1]: Name inspired by the multi-headed hound of Hades that guards the underworld.
