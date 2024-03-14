@@ -40,7 +40,7 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 12.dp, end = 12.dp, top = 12.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp), // Outside padding
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -50,11 +50,13 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onCheckedChange(!isSwitchedOn) }
-                .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 12.dp),
+                .padding(start = 22.dp, end = 22.dp, top = 14.dp, bottom = 14.dp), // Inside padding
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = label)
+            Box(modifier = Modifier.weight(1f)) {
+                Text(text = label)
+            }
             Switch(checked = isSwitchedOn,
                 onCheckedChange = { onCheckedChange(it) },
                 thumbContent = if (isSwitchedOn) {
