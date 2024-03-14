@@ -8,7 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.view.WindowCompat
 import com.bl4ckswordsman.cerberustiles.MainViewModel
 import com.bl4ckswordsman.cerberustiles.SettingsUtils
@@ -16,12 +16,13 @@ import com.bl4ckswordsman.cerberustiles.SettingsUtils.Brightness
 import com.bl4ckswordsman.cerberustiles.SettingsUtils.Vibration
 import com.bl4ckswordsman.cerberustiles.ui.OverlayDialog
 import com.bl4ckswordsman.cerberustiles.ui.OverlayDialogParams
+import com.bl4ckswordsman.cerberustiles.ui.createSharedParams
 
 /**
  * A [ComponentActivity] that shows an overlay dialog with settings components.
  */
 class OverlayActivity : ComponentActivity() {
-        private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onResume() {
         super.onResume()
@@ -38,8 +39,9 @@ class OverlayActivity : ComponentActivity() {
         window.navigationBarColor = Color.TRANSPARENT
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         setContent {
-            val showOverlayDialog = remember { mutableStateOf(true) }
-            val params = OverlayDialogParams(showDialog = showOverlayDialog,
+            val showOverlayDialog = rememberSaveable { mutableStateOf(true) }
+            val params = OverlayDialogParams(
+                showDialog = showOverlayDialog,
                 onDismiss = { finish() },
                 canWrite = viewModel.canWrite,
                 isSwitchedOn = viewModel.isSwitchedOn.value,
@@ -58,7 +60,9 @@ class OverlayActivity : ComponentActivity() {
                         viewModel.isVibrationModeOn.value = newValue
                     }
                     Vibration.toggleVibrationMode(params)
-                })
+                },
+                sharedParams = createSharedParams()
+            )
             OverlayDialog(params)
         }
     }

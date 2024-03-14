@@ -8,7 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +21,7 @@ import com.bl4ckswordsman.cerberustiles.ui.MainScreen
 import com.bl4ckswordsman.cerberustiles.ui.MainScreenParams
 import com.bl4ckswordsman.cerberustiles.ui.OverlayDialog
 import com.bl4ckswordsman.cerberustiles.ui.OverlayDialogParams
+import com.bl4ckswordsman.cerberustiles.ui.createSharedParams
 import com.bl4ckswordsman.cerberustiles.ui.theme.CustomTilesTheme
 import kotlinx.coroutines.launch
 
@@ -64,7 +65,7 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(this)
         setContent {
-            val showOverlayDialog = remember { mutableStateOf(false) }
+            val showOverlayDialog = rememberSaveable { mutableStateOf(false) }
             CustomTilesTheme {
                 MainScreen(
                     MainScreenParams(canWrite = canWrite,
@@ -85,7 +86,8 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                 openPermissionSettings = { SettingsUtils.openPermissionSettings(this) },
                 isVibrationModeOn = _isVibrationMode.value ?: false,
                 setVibrationMode = { _isVibrationMode.value = it },
-                toggleVibrationMode = ::toggleVibrationMode
+                toggleVibrationMode = ::toggleVibrationMode,
+                sharedParams = createSharedParams()
             )
             OverlayDialog(params)
             if (intent?.action == "com.bl4ckswordsman.cerberustiles.OPEN_OVERLAY") {

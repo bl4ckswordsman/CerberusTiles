@@ -9,10 +9,12 @@ import android.util.Log
 import android.widget.TextView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -21,6 +23,8 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -43,29 +47,37 @@ data class DialogCreationParams(
     val sharedParams: SharedParams
 )
 
+enum class DialogType {
+    NONE, COMPONENT_VISIBILITY, APP_VERSION
+}
+
 /**
  * The shared parameters between the settings screen components.
  */
 @Composable
 fun createSharedParams(): SharedParams {
     val context = LocalContext.current
-    val showDialog = remember { mutableStateOf(false) }
+    val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    val showDialog = rememberSaveable { mutableStateOf(false) }
     val releaseInfo = remember { mutableStateOf(ReleaseInfo("", "", "")) }
-    val downloadId = remember { mutableLongStateOf(-1L) }
+    val downloadId = rememberSaveable { mutableLongStateOf(-1L) }
     val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-    val isUpdateAvailable = remember { mutableStateOf(false) }
+    val isUpdateAvailable = rememberSaveable { mutableStateOf(false) }
     val versionManager = remember { VersionManager() }
     val coroutineScope = rememberCoroutineScope()
+    val dialogType = rememberSaveable { mutableStateOf(DialogType.NONE) }
 
     return SharedParams(
         context = context,
         coroutineScope = coroutineScope,
         showDialog = showDialog,
+        dialogType = dialogType,
         isUpdateAvailable = isUpdateAvailable,
         releaseInfo = releaseInfo,
         downloadId = downloadId,
         downloadManager = downloadManager,
-        versionManager = versionManager
+        versionManager = versionManager,
+        sharedPreferences = sharedPreferences
     )
 }
 
@@ -75,6 +87,12 @@ fun createSharedParams(): SharedParams {
  */
 @Composable
 fun CreateSettingsListItem(params: SettingsListItemParams) {
+    CreateSettingsListItem(headlineText = "Component Visibility in Overlay Dialog",
+        supportingText = "Select which components should be visible",
+        onClick = {
+            params.sharedParams.showDialog.value = true
+            params.sharedParams.dialogType.value = DialogType.COMPONENT_VISIBILITY
+        })
     CreateSettingsListItem(headlineText = "App version",
         supportingText = "Click to view release notes",
         onClick = {
@@ -85,6 +103,7 @@ fun CreateSettingsListItem(params: SettingsListItemParams) {
                 params.sharedParams.isUpdateAvailable.value = updateAvailable
                 params.sharedParams.releaseInfo.value = info
                 params.sharedParams.showDialog.value = true
+                params.sharedParams.dialogType.value = DialogType.APP_VERSION
             }
         })
 }
@@ -95,41 +114,101 @@ fun CreateSettingsListItem(params: SettingsListItemParams) {
  */
 @Composable
 fun CreateDialog(params: DialogCreationParams) {
-    val dialogParams = DialogParams(showDialog = params.sharedParams.showDialog,
-        titleText = if (params.sharedParams.isUpdateAvailable.value) "New update available" else "Release Information",
-        content = {
-            Column {
-                HorizontalDivider()
-                Text("Current Version: v${params.sharedParams.releaseInfo.value.currentVersion}")
-                Text("Latest Version: ${params.sharedParams.releaseInfo.value.latestVersion}")
-                HorizontalDivider()
-                Spacer(modifier = Modifier.padding(8.dp))
-                Text("Latest Release Notes:")
-                MarkdownText(params.sharedParams.releaseInfo.value.releaseNotes)
+    if (params.sharedParams.showDialog.value) {
+        when (params.sharedParams.dialogType.value) {
+
+            DialogType.APP_VERSION -> {
+                val dialogParams = DialogParams(showDialog = params.sharedParams.showDialog,
+                    titleText = if (params.sharedParams.isUpdateAvailable.value) "New update available" else "Release Information",
+                    content = {
+                        Column {
+                            HorizontalDivider()
+                            Text("Current Version: v${params.sharedParams.releaseInfo.value.currentVersion}")
+                            Text("Latest Version: ${params.sharedParams.releaseInfo.value.latestVersion}")
+                            HorizontalDivider()
+                            Spacer(modifier = Modifier.padding(8.dp))
+                            Text("Latest Release Notes:")
+                            MarkdownText(params.sharedParams.releaseInfo.value.releaseNotes)
+                        }
+                    },
+                    confirmButtonText = "Close",
+                    onConfirmButtonClick = { params.sharedParams.showDialog.value = false },
+                    dismissButtonText = if (params.sharedParams.isUpdateAvailable.value) "Download update" else null,
+                    onDismissButtonClick = if (params.sharedParams.isUpdateAvailable.value) {
+                        {
+                            params.sharedParams.coroutineScope.launch {
+                                val url =
+                                    params.sharedParams.versionManager.getLatestReleaseApkUrl()
+                                if (url.startsWith("http://") || url.startsWith("https://")) {
+                                    val request = DownloadManager.Request(Uri.parse(url))
+                                    request.setDestinationInExternalPublicDir(
+                                        Environment.DIRECTORY_DOWNLOADS, "CerberusTiles-update.apk"
+                                    )
+                                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                                    params.sharedParams.downloadId.value =
+                                        params.sharedParams.downloadManager.enqueue(request)
+                                } else {
+                                    Log.d("Download Error", "Invalid URL: $url")
+                                }
+                            }
+                        }
+                    } else null)
+                CreateDialog(dialogParams)
             }
-        },
-        confirmButtonText = "Close",
-        onConfirmButtonClick = { params.sharedParams.showDialog.value = false },
-        dismissButtonText = if (params.sharedParams.isUpdateAvailable.value) "Download update" else null,
-        onDismissButtonClick = if (params.sharedParams.isUpdateAvailable.value) {
-            {
-                params.sharedParams.coroutineScope.launch {
-                    val url = params.sharedParams.versionManager.getLatestReleaseApkUrl()
-                    if (url.startsWith("http://") || url.startsWith("https://")) {
-                        val request = DownloadManager.Request(Uri.parse(url))
-                        request.setDestinationInExternalPublicDir(
-                            Environment.DIRECTORY_DOWNLOADS, "CerberusTiles-update.apk"
-                        )
-                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                        params.sharedParams.downloadId.value =
-                            params.sharedParams.downloadManager.enqueue(request)
-                    } else {
-                        Log.d("Download Error", "Invalid URL: $url")
-                    }
+
+            DialogType.COMPONENT_VISIBILITY -> {
+                // Call CreateComponentVisibilityDialog here
+                CreateComponentVisibilityDialog(params)
+            }
+
+            DialogType.NONE -> {
+                // Do nothing
+            }
+
+
+        }
+
+    }
+}
+
+/**
+ * Creates the component visibility dialog that allows the user to select which components should
+ * be visible.
+ * @param params The parameters of the dialog.
+ */
+@Composable
+fun CreateComponentVisibilityDialog(params: DialogCreationParams) {
+    if (params.sharedParams.showDialog.value) {
+        AlertDialog(onDismissRequest = { params.sharedParams.showDialog.value = false },
+            title = { Text("Component Visibility") },
+            text = {
+                Column {
+                    SettingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
+                        "adaptBrightnessSwitch", true
+                    ), text = "1. Adaptive Brightness Switch", onCheckedChange = { newValue ->
+                        params.sharedParams.sharedPreferences.edit()
+                            .putBoolean("adaptBrightnessSwitch", newValue).apply()
+                    })
+                    SettingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
+                        "brightnessSlider", true
+                    ), text = "2. Brightness Slider", onCheckedChange = { newValue ->
+                        params.sharedParams.sharedPreferences.edit()
+                            .putBoolean("brightnessSlider", newValue).apply()
+                    })
+                    SettingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
+                        "vibrationSwitch", true
+                    ), text = "3. Vibration Switch", onCheckedChange = { newValue ->
+                        params.sharedParams.sharedPreferences.edit()
+                            .putBoolean("vibrationSwitch", newValue).apply()
+                    })
                 }
-            }
-        } else null)
-    CreateDialog(dialogParams)
+            },
+            confirmButton = {
+                Button(onClick = { params.sharedParams.showDialog.value = false }) {
+                    Text("Confirm")
+                }
+            })
+    }
 }
 
 /**
@@ -196,3 +275,24 @@ fun CreateDialog(params: DialogParams) {
             })
     }
 }
+
+/**
+ * A settings checkbox.
+ * @param initialValue The initial value of the checkbox.
+ * @param text The text of the checkbox.
+ * @param onCheckedChange The action to perform when the checkbox is checked.
+ */
+@Composable
+fun SettingsCheckbox(
+    initialValue: Boolean, text: String, onCheckedChange: (Boolean) -> Unit
+) {
+    val checkboxValue = rememberSaveable { mutableStateOf(initialValue) }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(checked = checkboxValue.value, onCheckedChange = {
+            checkboxValue.value = it
+            onCheckedChange(it)
+        })
+        Text(text)
+    }
+}
+

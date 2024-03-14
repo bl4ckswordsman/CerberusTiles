@@ -20,7 +20,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.LiveData
@@ -146,7 +146,13 @@ fun MainScreenNavHost(params: MainScreenNavHostParams) {
                     openPermissionSettings = params.openPermissionSettings,
                     isVibrationModeOn = params.isVibrationModeOn,
                     setVibrationMode = params.setVibrationMode,
-                    toggleVibrationMode = params.toggleVibrationMode
+                    toggleVibrationMode = params.toggleVibrationMode,
+                    sharedParams = createSharedParams(),
+                    componentVisibilityParams = ComponentVisibilityDialogParams(
+                        adaptBrightnessSwitch = rememberSaveable { mutableStateOf(true) },
+                        brightnessSlider = rememberSaveable { mutableStateOf(true) },
+                        vibrationSwitch = rememberSaveable { mutableStateOf(true) }
+                    )
                 )
                 SettingsComponents(settingsCompParams)
             }
@@ -181,8 +187,8 @@ fun MainScreen(params: MainScreenParams) {
     val isAdaptiveState by params.isAdaptive.observeAsState(initial = false)
     val isVibrationModeState by params.isVibrationMode.observeAsState(initial = false)
 
-    val (isSwitchedOn, setSwitchedOn) = remember { mutableStateOf(isAdaptiveState) }
-    val (isVibrationModeOn, setVibrationMode) = remember { mutableStateOf(isVibrationModeState) }
+    val (isSwitchedOn, setSwitchedOn) = rememberSaveable { mutableStateOf(isAdaptiveState) }
+    val (isVibrationModeOn, setVibrationMode) = rememberSaveable { mutableStateOf(isVibrationModeState) }
 
     SideEffect {
         setSwitchedOn(isAdaptiveState)

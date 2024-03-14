@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -25,11 +26,13 @@ data class SharedParams(
     val context: Context,
     val coroutineScope: CoroutineScope,
     val showDialog: MutableState<Boolean>,
+    val dialogType: MutableState<DialogType>,
     val isUpdateAvailable: MutableState<Boolean>,
     val releaseInfo: MutableState<ReleaseInfo>,
     val downloadId: MutableState<Long>,
     val downloadManager: DownloadManager,
-    val versionManager: VersionManager
+    val versionManager: VersionManager,
+    val sharedPreferences: SharedPreferences
 )
 
 /**

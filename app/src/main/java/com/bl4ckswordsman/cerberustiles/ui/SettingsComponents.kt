@@ -1,15 +1,20 @@
 package com.bl4ckswordsman.cerberustiles.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
+
+data class ComponentVisibilityDialogParams(
+    val adaptBrightnessSwitch: MutableState<Boolean>,
+    val brightnessSlider: MutableState<Boolean>,
+    val vibrationSwitch: MutableState<Boolean>
+)
 
 /**
  * Parameters for the settings components.
  */
 data class SettingsComponentsParams(
-    val showAdaptiveBrightnessSwitch: Boolean = true,
-    val showBrightnessSlider: Boolean = true,
-    val showVibrationModeSwitch: Boolean = true,
+    val componentVisibilityParams: ComponentVisibilityDialogParams,
     val canWriteState: Boolean,
     val isSwitchedOn: Boolean,
     val setSwitchedOn: (Boolean) -> Unit,
@@ -17,7 +22,8 @@ data class SettingsComponentsParams(
     val openPermissionSettings: () -> Unit,
     val isVibrationModeOn: Boolean,
     val setVibrationMode: (Boolean) -> Unit,
-    val toggleVibrationMode: () -> Boolean
+    val toggleVibrationMode: () -> Boolean,
+    val sharedParams: SharedParams
 )
 
 /**
@@ -25,7 +31,7 @@ data class SettingsComponentsParams(
  */
 @Composable
 fun SettingsComponents(params: SettingsComponentsParams) {
-    if (params.showAdaptiveBrightnessSwitch) {
+    if (params.componentVisibilityParams.adaptBrightnessSwitch.value) {
         SwitchWithLabel(
             isSwitchedOn = params.isSwitchedOn,
             onCheckedChange = {
@@ -39,10 +45,12 @@ fun SettingsComponents(params: SettingsComponentsParams) {
             label = if (params.isSwitchedOn) "Adaptive Brightness is ON" else "Adaptive Brightness is OFF"
         )
     }
-    if (params.showBrightnessSlider) {
+
+    if (params.componentVisibilityParams.brightnessSlider.value) {
         BrightnessSlider(context = LocalContext.current)
     }
-    if (params.showVibrationModeSwitch) {
+
+    if (params.componentVisibilityParams.vibrationSwitch.value) {
         SwitchWithLabel(
             isSwitchedOn = params.isVibrationModeOn,
             onCheckedChange = { isChecked ->
