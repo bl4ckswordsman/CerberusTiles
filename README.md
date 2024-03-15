@@ -17,9 +17,24 @@
 
 ## Introduction
 
-Cerberus Tiles[^1] adds more quick settings tiles to your Google Pixel Phone. Ideal to be used with
-the back tap gesture.
-Tested in a Google Pixel 8 Pro.
+Pixel phones don't offer quick access to some core settings, unlike some other Android phone manufacturers.
+
+That's where Cerberus Tiles[^1] comes in, to add more quick settings tiles and shortcuts to your Google Pixel.
+Ideal to be used with the back tap gesture.
+Tested in a Pixel 8 Pro.
+
+<details>
+  <summary> Screenshots (Click to expand)</summary>
+
+<p float="left">
+  <img src="demo_assets/screenshot_1_merged.png" width="150" />
+  <img src="demo_assets/recording_1.gif" width="152" /> 
+
+</p>
+</details>
+
+
+
 
 ## Features
 
