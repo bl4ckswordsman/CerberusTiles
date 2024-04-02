@@ -54,9 +54,12 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(modifier = Modifier.weight(1f)) {
-                Text(text = label)
-            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp) // Space between label and switch
+            )
+            { Text(text = label) }
             Switch(checked = isSwitchedOn,
                 onCheckedChange = { onCheckedChange(it) },
                 thumbContent = if (isSwitchedOn) {
