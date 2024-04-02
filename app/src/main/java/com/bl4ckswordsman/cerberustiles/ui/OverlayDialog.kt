@@ -36,8 +36,10 @@ data class OverlayDialogParams(
  */
 @Composable
 fun OverlayDialog(params: OverlayDialogParams) {
-    val adaptBrightnessSwitch = params.sharedParams.sharedPreferences.getBoolean("adaptBrightnessSwitch", true)
-    val brightnessSlider = params.sharedParams.sharedPreferences.getBoolean("brightnessSlider", true)
+    val adaptBrightnessSwitch =
+        params.sharedParams.sharedPreferences.getBoolean("adaptBrightnessSwitch", true)
+    val brightnessSlider =
+        params.sharedParams.sharedPreferences.getBoolean("brightnessSlider", true)
     val vibrationSwitch = params.sharedParams.sharedPreferences.getBoolean("vibrationSwitch", true)
     val canWriteState by params.canWrite.observeAsState(initial = false)
     if (params.showDialog.value) {
@@ -54,8 +56,16 @@ fun OverlayDialog(params: OverlayDialogParams) {
                     text = {
                         Column {
                             val componentVisibilityDialogParams = ComponentVisibilityDialogParams(
-                                adaptBrightnessSwitch = rememberSaveable { mutableStateOf(adaptBrightnessSwitch) },
-                                brightnessSlider = rememberSaveable { mutableStateOf(brightnessSlider) },
+                                adaptBrightnessSwitch = rememberSaveable {
+                                    mutableStateOf(
+                                        adaptBrightnessSwitch
+                                    )
+                                },
+                                brightnessSlider = rememberSaveable {
+                                    mutableStateOf(
+                                        brightnessSlider
+                                    )
+                                },
                                 vibrationSwitch = rememberSaveable { mutableStateOf(vibrationSwitch) }
                             )
                             val settingsComponentsParams = SettingsComponentsParams(

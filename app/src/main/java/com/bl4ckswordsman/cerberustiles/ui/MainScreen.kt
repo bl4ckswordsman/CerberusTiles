@@ -188,7 +188,11 @@ fun MainScreen(params: MainScreenParams) {
     val isVibrationModeState by params.isVibrationMode.observeAsState(initial = false)
 
     val (isSwitchedOn, setSwitchedOn) = rememberSaveable { mutableStateOf(isAdaptiveState) }
-    val (isVibrationModeOn, setVibrationMode) = rememberSaveable { mutableStateOf(isVibrationModeState) }
+    val (isVibrationModeOn, setVibrationMode) = rememberSaveable {
+        mutableStateOf(
+            isVibrationModeState
+        )
+    }
 
     SideEffect {
         setSwitchedOn(isAdaptiveState)

@@ -46,20 +46,17 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onCheckedChange(!isSwitchedOn) }
-                .padding(start = 22.dp, end = 22.dp, top = 14.dp, bottom = 14.dp), // Inside padding
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!isSwitchedOn) }
+            .padding(start = 22.dp, end = 22.dp, top = 14.dp, bottom = 14.dp), // Inside padding
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp) // Space between label and switch
-            )
-            { Text(text = label) }
+            ) { Text(text = label) }
             Switch(checked = isSwitchedOn,
                 onCheckedChange = { onCheckedChange(it) },
                 thumbContent = if (isSwitchedOn) {
@@ -82,8 +79,13 @@ fun SwitchWithLabel(isSwitchedOn: Boolean, onCheckedChange: (Boolean) -> Unit, l
  */
 @Composable
 fun BrightnessSlider(context: Context) {
-    var sliderPosition by rememberSaveable { mutableFloatStateOf((ln(
-        SettingsUtils.Brightness.getScreenBrightness(context).toDouble()) / ln(255.0)).toFloat()) }
+    var sliderPosition by rememberSaveable {
+        mutableFloatStateOf(
+            (ln(
+                SettingsUtils.Brightness.getScreenBrightness(context).toDouble()
+            ) / ln(255.0)).toFloat()
+        )
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,12 +104,10 @@ fun BrightnessSlider(context: Context) {
 
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             Slider(
-                value = sliderPosition,
-                onValueChange = {
+                value = sliderPosition, onValueChange = {
                     sliderPosition = it
                     SettingsUtils.Brightness.setScreenBrightness(context, it)
-                },
-                valueRange = 0f..1f
+                }, valueRange = 0f..1f
             )
         }
 
