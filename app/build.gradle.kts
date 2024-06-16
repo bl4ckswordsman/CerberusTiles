@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+     id("com.jaredsburrows.license")  version "0.9.8"
 }
 
 android {
@@ -44,6 +45,27 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    licenseReport {
+        // Generate reports
+        generateCsvReport = false
+        generateHtmlReport = true
+        generateJsonReport = false
+        generateTextReport = false
+
+        // Copy reports - These options are ignored for Java projects
+        copyCsvReportToAssets = false
+        copyHtmlReportToAssets = false
+        copyJsonReportToAssets = true
+        copyTextReportToAssets = false
+        useVariantSpecificAssetDirs = false
+
+        // Ignore licenses for certain artifact patterns
+        // ignoredPatterns = []
+
+        // Show versions in the report - default is false
+        showVersions = true
     }
 }
 
