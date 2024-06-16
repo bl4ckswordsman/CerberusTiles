@@ -19,6 +19,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bl4ckswordsman.cerberustiles.OpenSourceLicensesDialog
 import com.bl4ckswordsman.cerberustiles.VersionManager
 import kotlinx.coroutines.CoroutineScope
 
@@ -32,7 +33,8 @@ data class SharedParams(
     val downloadId: MutableState<Long>,
     val downloadManager: DownloadManager,
     val versionManager: VersionManager,
-    val sharedPreferences: SharedPreferences
+    val sharedPreferences: SharedPreferences,
+    val showLicensesDialog: MutableState<Boolean>
 )
 
 /**
@@ -67,6 +69,8 @@ fun SettingsScreen(params: SettingsScreenParams) {
         createDownloadCompleteReceiver(params.sharedParams.downloadId, params.sharedParams.downloadManager)
     DownloadReceiver(params.sharedParams.context, onDownloadComplete)
     FetchLatestReleaseInfoOnCompose(params.sharedParams.context, params.sharedParams.releaseInfo)
+    OpenSourceLicensesDialog(params.sharedParams.showLicensesDialog)
+
 
     Column(modifier = Modifier.padding(params.paddingValues)) {
         val settingsListItemParams = SettingsListItemParams(

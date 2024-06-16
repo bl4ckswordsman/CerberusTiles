@@ -66,6 +66,8 @@ fun createSharedParams(): SharedParams {
     val versionManager = remember { VersionManager() }
     val coroutineScope = rememberCoroutineScope()
     val dialogType = rememberSaveable { mutableStateOf(DialogType.NONE) }
+    val showLicensesDialog = rememberSaveable { mutableStateOf(false) }
+
 
     return SharedParams(
         context = context,
@@ -77,7 +79,8 @@ fun createSharedParams(): SharedParams {
         downloadId = downloadId,
         downloadManager = downloadManager,
         versionManager = versionManager,
-        sharedPreferences = sharedPreferences
+        sharedPreferences = sharedPreferences,
+        showLicensesDialog = showLicensesDialog
     )
 }
 
@@ -93,7 +96,8 @@ fun CreateSettingsListItem(params: SettingsListItemParams) {
             params.sharedParams.showDialog.value = true
             params.sharedParams.dialogType.value = DialogType.COMPONENT_VISIBILITY
         })
-    CreateSettingsListItem(headlineText = "App version",
+    CreateSettingsListItem(
+        headlineText = "App version",
         supportingText = "Click to view release notes",
         onClick = {
             params.sharedParams.coroutineScope.launch {
@@ -105,6 +109,11 @@ fun CreateSettingsListItem(params: SettingsListItemParams) {
                 params.sharedParams.showDialog.value = true
                 params.sharedParams.dialogType.value = DialogType.APP_VERSION
             }
+        })
+    CreateSettingsListItem(headlineText = "Open Source Licenses",
+        supportingText = "View licenses of the libraries that made this app possible",
+        onClick = {
+            params.sharedParams.showLicensesDialog.value = true
         })
 }
 
