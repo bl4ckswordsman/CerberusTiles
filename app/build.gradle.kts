@@ -1,7 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-     id("com.jaredsburrows.license")  version "0.9.8"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("com.jaredsburrows.license") version "0.9.8"
 }
 
 android {
@@ -69,19 +70,26 @@ android {
     }
 }
 
+composeCompiler {
+    enableStrongSkippingMode = true
+
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+}
+
 dependencies {
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
     implementation("androidx.activity:activity-compose:1.9.0")
-    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.runtime:runtime-android:1.6.8")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
-    implementation("androidx.compose.runtime:runtime-rxjava2:1.6.7")
+    implementation("androidx.compose.runtime:runtime-rxjava2:1.6.8")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation ("io.noties.markwon:core:4.6.2")
     implementation("androidx.lifecycle:lifecycle-process:2.8.2")
@@ -89,7 +97,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
