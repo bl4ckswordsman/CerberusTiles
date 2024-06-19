@@ -10,7 +10,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.bl4ckswordsman.cerberustiles.Constants as label
 
 
@@ -24,6 +26,7 @@ sealed class Screen(val route: String) {
      * The home screen of the app.
      */
     data object Home : Screen(label.HOME_SCREEN)
+
     /**
      * The settings screen of the app.
      */
@@ -43,28 +46,26 @@ fun BottomNavBar(navController: NavController) {
         Screen.Settings to (Icons.Filled.Settings to Icons.Outlined.Settings)
     )
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     NavigationBar {
         screens.forEach { screen ->
-            NavigationBarItem(
-                selected = navController.currentDestination?.route == screen.route,
-                onClick = {
-                    if (navController.currentDestination?.route != screen.route) {
-                        navController.navigate(screen.route) {
-                            popUpTo(screen.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
+            NavigationBarItem(selected = currentRoute == screen.route, onClick = {
+                if (currentRoute != screen.route) {
+                    navController.navigate(screen.route) {
+                        popUpTo(screen.route) { inclusive = true }
+                        launchSingleTop = true
                     }
-                },
-                icon = {
-                    val (filledIcon, outlinedIcon) = icons[screen]!!
-                    if (navController.currentDestination?.route == screen.route) {
-                        Icon(filledIcon, contentDescription = null)
-                    } else {
-                        Icon(outlinedIcon, contentDescription = null)
-                    }
-                },
-                label = { Text(screen.route) }
-            )
+                }
+            }, icon = {
+                val (filledIcon, outlinedIcon) = icons[screen]!!
+                if (currentRoute == screen.route) {
+                    Icon(filledIcon, contentDescription = null)
+                } else {
+                    Icon(outlinedIcon, contentDescription = null)
+                }
+            }, label = { Text(screen.route) })
         }
     }
 }
