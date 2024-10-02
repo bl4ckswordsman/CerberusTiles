@@ -28,7 +28,7 @@ Tested in a Pixel 8 Pro.
 
 <p float="left">
   <img src="demo_assets/screenshot_1_merged.png" width="150" />
-  <img src="demo_assets/recording_1.gif" width="156" /> 
+  <img src="demo_assets/recording_1.gif" width="156" />
 
 </p>
 </details>
@@ -48,7 +48,7 @@ Tested in a Pixel 8 Pro.
 > [!NOTE]
 > More features coming soon.
 
-### Kudos to:
+### Kudos to
 
 [This cool Gradient Generator](https://doodad.dev/gradient-generator/), Bing Copilot for the
 generated app icon etc.
