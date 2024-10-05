@@ -5,7 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
 
 /**
- * Parameters for controlling the visibility of settings components.
+ * Parameters for controlling the visibility of settings components in the dialog.
  */
 data class ComponentVisibilityDialogParams(
     val adaptBrightnessSwitch: MutableState<Boolean>,
