@@ -23,6 +23,21 @@ import com.bl4ckswordsman.cerberustiles.OpenSourceLicensesDialog
 import com.bl4ckswordsman.cerberustiles.VersionManager
 import kotlinx.coroutines.CoroutineScope
 
+/**
+ * Shared parameters used across different components of the app.
+ *
+ * @property context The application context.
+ * @property coroutineScope The coroutine scope for launching coroutines.
+ * @property showDialog The state of the dialog visibility.
+ * @property dialogType The type of dialog to be shown.
+ * @property isUpdateAvailable Whether an update is available for the app.
+ * @property releaseInfo Information about the latest release.
+ * @property downloadId The ID of the current download.
+ * @property downloadManager The system's download manager.
+ * @property versionManager The version manager for the app.
+ * @property sharedPreferences The shared preferences for storing app settings.
+ * @property showLicensesDialog The state of the open source licenses dialog visibility.
+ */
 data class SharedParams(
     val context: Context,
     val coroutineScope: CoroutineScope,
@@ -195,4 +210,3 @@ fun SettingsScreenPreview() {
 
     SettingsScreen(settingsScreenParams)
 }
-
