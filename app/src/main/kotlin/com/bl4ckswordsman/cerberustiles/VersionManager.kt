@@ -98,16 +98,10 @@ class VersionManager {
         }
     }
 
-    /**
-     * Checks if the version string is valid.
-     */
     private fun isValidVersion(version: String): Boolean {
         return version.isNotEmpty() && version.all { it.isDigit() || it == '.' || it == 'v' } && version.contains(".")
     }
 
-    /**
-     * Parses the version string into a list of integers.
-     */
     private fun parseVersion(version: String): List<Int> {
         return if (isValidVersion(version)) {
             val versionWithoutPrefix = if (version.startsWith("v")) version.removePrefix("v") else version
