@@ -4,6 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
 
+/**
+ * Parameters for controlling the visibility of settings components in the dialog.
+ *
+ * @property adaptBrightnessSwitch MutableState controlling the visibility of the adaptive brightness switch.
+ * @property brightnessSlider MutableState controlling the visibility of the brightness slider.
+ * @property vibrationSwitch MutableState controlling the visibility of the vibration switch.
+ */
 data class ComponentVisibilityDialogParams(
     val adaptBrightnessSwitch: MutableState<Boolean>,
     val brightnessSlider: MutableState<Boolean>,
