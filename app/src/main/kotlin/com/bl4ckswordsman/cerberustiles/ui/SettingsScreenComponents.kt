@@ -47,6 +47,13 @@ data class DialogCreationParams(
     val sharedParams: SharedParams
 )
 
+/**
+ * Enum class representing different types of dialogs in the app.
+ *
+ * NONE: No dialog is currently active.
+ * COMPONENT_VISIBILITY: Dialog for managing component visibility settings.
+ * APP_VERSION: Dialog for displaying app version information.
+ */
 enum class DialogType {
     NONE, COMPONENT_VISIBILITY, APP_VERSION
 }
@@ -304,4 +311,3 @@ fun SettingsCheckbox(
         Text(text)
     }
 }
-
