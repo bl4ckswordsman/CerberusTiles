@@ -89,7 +89,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.runtime:runtime-android:1.7.2")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.4")
-    implementation("androidx.compose.runtime:runtime-rxjava2:1.7.2")
+    implementation("androidx.compose.runtime:runtime-rxjava2:1.7.4")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation ("io.noties.markwon:core:4.6.2")
     implementation("androidx.lifecycle:lifecycle-process:2.8.6")
