@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.bl4ckswordsman.cerberustiles"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.bl4ckswordsman.cerberustiles"
