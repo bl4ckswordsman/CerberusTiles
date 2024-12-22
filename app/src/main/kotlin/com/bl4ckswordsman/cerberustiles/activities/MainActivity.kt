@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     /** TODO: Use viewModelScope for LiveData instead of using MutableLiveData, this ensures that
      * the LiveData is cleared when the ViewModel is cleared.**/
 
-
     private val shortcutHelper by lazy { ShortcutHelper(this) }
 
     private val _canWrite = MutableLiveData<Boolean>()
@@ -42,10 +41,8 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     private val _isVibrationMode = MutableLiveData<Boolean>()
     private val isVibrationMode: LiveData<Boolean> get() = _isVibrationMode
 
-
     override fun onStart() {
         super.onStart()
-
         lifecycleScope.launch {
             shortcutHelper.createAllShortcuts()
         }
@@ -60,7 +57,6 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
-
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(this)
@@ -68,12 +64,14 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
             val showOverlayDialog = rememberSaveable { mutableStateOf(false) }
             CustomTilesTheme {
                 MainScreen(
-                    MainScreenParams(canWrite = canWrite,
-                    isAdaptive = isAdaptive,
-                    toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
-                    isVibrationMode = isVibrationMode,
-                    toggleVibrationMode = ::toggleVibrationMode,
-                    openPermissionSettings = { SettingsUtils.openPermissionSettings(this) })
+                    MainScreenParams(
+                        canWrite = canWrite,
+                        isAdaptive = isAdaptive,
+                        toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
+                        isVibrationMode = isVibrationMode,
+                        toggleVibrationMode = ::toggleVibrationMode,
+                        openPermissionSettings = { SettingsUtils.openPermissionSettings(this) }
+                    )
                 )
             }
             val params = OverlayDialogParams(
@@ -94,24 +92,21 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                 showOverlayDialog.value = true
             }
         }
-
-        // Handle the intent action from the shortcut
-        if (intent?.action == TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION) {
-            toggleAdaptiveBrightness()
-        }
-        if (intent?.action == TOGGLE_VIBRATION_MODE_ACTION) {
-            toggleVibrationMode()
-        }
-
+        handleIntentAction()
     }
 
+    private fun handleIntentAction() {
+        when (intent?.action) {
+            TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION -> toggleAdaptiveBrightness()
+            TOGGLE_VIBRATION_MODE_ACTION -> toggleVibrationMode()
+        }
+    }
 
     private fun toggleAdaptiveBrightness() {
         val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
             _isAdaptive.value = newValue
         }
         SettingsUtils.Brightness.toggleAdaptiveBrightness(params)
-        // Update _isAdaptive after changing the setting
         _isAdaptive.value = !(_isAdaptive.value ?: false)
     }
 

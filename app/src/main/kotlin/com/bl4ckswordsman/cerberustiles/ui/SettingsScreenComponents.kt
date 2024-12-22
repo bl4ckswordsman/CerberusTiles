@@ -96,14 +96,14 @@ fun createSharedParams(): SharedParams {
  * @param params The parameters of the list items.
  */
 @Composable
-fun CreateSettingsListItem(params: SettingsListItemParams) {
-    CreateSettingsListItem(headlineText = "Component Visibility in Overlay Dialog",
+fun createSettingsListItems(params: SettingsListItemParams) {
+    createSettingsListItem(headlineText = "Component Visibility in Overlay Dialog",
         supportingText = "Select which components should be visible",
         onClick = {
             params.sharedParams.showDialog.value = true
             params.sharedParams.dialogType.value = DialogType.COMPONENT_VISIBILITY
         })
-    CreateSettingsListItem(
+    createSettingsListItem(
         headlineText = "App version",
         supportingText = "Click to view release notes",
         onClick = {
@@ -117,7 +117,7 @@ fun CreateSettingsListItem(params: SettingsListItemParams) {
                 params.sharedParams.dialogType.value = DialogType.APP_VERSION
             }
         })
-    CreateSettingsListItem(headlineText = "Open Source Licenses",
+    createSettingsListItem(headlineText = "Open Source Licenses",
         supportingText = "View licenses of the libraries that made this app possible",
         onClick = {
             params.sharedParams.showLicensesDialog.value = true
@@ -129,7 +129,7 @@ fun CreateSettingsListItem(params: SettingsListItemParams) {
  * @param params The parameters of the dialog.
  */
 @Composable
-fun CreateDialog(params: DialogCreationParams) {
+fun createDialog(params: DialogCreationParams) {
     if (params.sharedParams.showDialog.value) {
         when (params.sharedParams.dialogType.value) {
 
@@ -169,12 +169,12 @@ fun CreateDialog(params: DialogCreationParams) {
                             }
                         }
                     } else null)
-                CreateDialog(dialogParams)
+                createDialog(dialogParams)
             }
 
             DialogType.COMPONENT_VISIBILITY -> {
-                // Call CreateComponentVisibilityDialog here
-                CreateComponentVisibilityDialog(params)
+                // Call createComponentVisibilityDialog here
+                createComponentVisibilityDialog(params)
             }
 
             DialogType.NONE -> {
@@ -193,25 +193,25 @@ fun CreateDialog(params: DialogCreationParams) {
  * @param params The parameters of the dialog.
  */
 @Composable
-fun CreateComponentVisibilityDialog(params: DialogCreationParams) {
+fun createComponentVisibilityDialog(params: DialogCreationParams) {
     if (params.sharedParams.showDialog.value) {
         AlertDialog(onDismissRequest = { params.sharedParams.showDialog.value = false },
             title = { Text("Component Visibility") },
             text = {
                 Column {
-                    SettingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
+                    settingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
                         "adaptBrightnessSwitch", true
                     ), text = "1. Adaptive Brightness Switch", onCheckedChange = { newValue ->
                         params.sharedParams.sharedPreferences.edit()
                             .putBoolean("adaptBrightnessSwitch", newValue).apply()
                     })
-                    SettingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
+                    settingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
                         "brightnessSlider", true
                     ), text = "2. Brightness Slider", onCheckedChange = { newValue ->
                         params.sharedParams.sharedPreferences.edit()
                             .putBoolean("brightnessSlider", newValue).apply()
                     })
-                    SettingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
+                    settingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
                         "vibrationSwitch", true
                     ), text = "3. Vibration Switch", onCheckedChange = { newValue ->
                         params.sharedParams.sharedPreferences.edit()
@@ -259,7 +259,7 @@ fun MarkdownText(markdown: String) {
  * @param onClick The action to perform when the item is clicked.
  */
 @Composable
-fun CreateSettingsListItem(
+fun createSettingsListItem(
     headlineText: String, supportingText: String, onClick: () -> Unit
 ) {
     ListItem(modifier = Modifier.clickable { onClick() },
@@ -272,7 +272,7 @@ fun CreateSettingsListItem(
  * @param params The dialog parameters.
  */
 @Composable
-fun CreateDialog(params: DialogParams) {
+fun createDialog(params: DialogParams) {
     if (params.showDialog.value) {
         AlertDialog(onDismissRequest = { params.showDialog.value = false },
             title = { Text(params.titleText) },
@@ -299,7 +299,7 @@ fun CreateDialog(params: DialogParams) {
  * @param onCheckedChange The action to perform when the checkbox is checked.
  */
 @Composable
-fun SettingsCheckbox(
+fun settingsCheckbox(
     initialValue: Boolean, text: String, onCheckedChange: (Boolean) -> Unit
 ) {
     val checkboxValue = rememberSaveable { mutableStateOf(initialValue) }
