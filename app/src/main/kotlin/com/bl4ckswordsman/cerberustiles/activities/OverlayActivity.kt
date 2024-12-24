@@ -35,8 +35,8 @@ class OverlayActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = Color.TRANSPARENT
-        window.navigationBarColor = Color.TRANSPARENT
+        // window.statusBarColor = Color.TRANSPARENT // Deprecated in API 35
+        // window.navigationBarColor = Color.TRANSPARENT
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         setContent {
             val showOverlayDialog = rememberSaveable { mutableStateOf(true) }
