@@ -33,7 +33,7 @@ class VersionManager {
             pInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             UNKNOWN
-        }
+        }.toString()
     }
 
     /**
