@@ -32,7 +32,11 @@ object SettingsUtils {
      * Shows a toast with the given message.
      */
     fun showToast(context: Context, setting: String, isEnabled: Boolean) {
-        val state = if (isEnabled) "enabled" else "disabled"
+        val state = when {
+            isEnabled -> "enabled"
+            setting == "Sound off" -> "Sound off"
+            else -> "disabled"
+        }
         Toast.makeText(context, "$setting $state", Toast.LENGTH_SHORT).show()
     }
 
@@ -104,18 +108,34 @@ object SettingsUtils {
         }
 
         /**
+         * Checks if the sound off mode is enabled.
+         */
+        fun isSoundOffModeEnabled(context: Context): Boolean {
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            return audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT
+        }
+
+        /**
          * Toggles the vibration mode.
          */
         fun toggleVibrationMode(params: SettingsToggleParams): Boolean {
             val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             return try {
                 val isVibrationModeOn = audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE
-                if (isVibrationModeOn) {
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                    showToast(params.context, "Vibration mode", false)
-                } else {
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
-                    showToast(params.context, "Vibration mode", true)
+                val isSoundOffModeOn = audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT
+                when {
+                    isVibrationModeOn -> {
+                        audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                        showToast(params.context, "Vibration mode", false)
+                    }
+                    isSoundOffModeOn -> {
+                        audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
+                        showToast(params.context, "Vibration mode", true)
+                    }
+                    else -> {
+                        audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                        showToast(params.context, "Sound off", true)
+                    }
                 }
                 params.onSettingChanged(!isVibrationModeOn)
                 true

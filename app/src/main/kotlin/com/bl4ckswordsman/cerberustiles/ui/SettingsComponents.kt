@@ -66,7 +66,11 @@ fun SettingsComponents(params: SettingsComponentsParams) {
                     params.openPermissionSettings()
                 }
             },
-            label = if (params.isVibrationModeOn) "Vibration Mode is ON" else "Vibration Mode is OFF"
+            label = when {
+                params.isVibrationModeOn -> "Vibration Mode is ON"
+                params.isSwitchedOn -> "Sound is OFF"
+                else -> "Sound is ON"
+            }
         )
     }
 }
