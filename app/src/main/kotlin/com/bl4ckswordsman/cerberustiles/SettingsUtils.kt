@@ -16,9 +16,9 @@ object SettingsUtils {
     /**
      * Parameters for toggling settings.
      */
-    data class ToggleSettingsParams(
+    data class SettingsToggleParams(
         val context: Context,
-        val setVibrationMode: (Boolean) -> Unit
+        val onSettingChanged: (Boolean) -> Unit
     )
 
     /**
@@ -52,7 +52,7 @@ object SettingsUtils {
         /**
          * Toggles the adaptive brightness setting.
          */
-        fun toggleAdaptiveBrightness(params: ToggleSettingsParams) {
+        fun toggleAdaptiveBrightness(params: SettingsToggleParams) {
             if (Settings.System.canWrite(params.context)) {
                 val isAdaptive = isAdaptiveBrightnessEnabled(params.context)
                 Settings.System.putInt(
@@ -62,6 +62,7 @@ object SettingsUtils {
                 )
                 // Show a toast with the new state of adaptive brightness
                 showToast(params.context, "Adaptive brightness", !isAdaptive)
+                params.onSettingChanged(!isAdaptive)
             }
         }
 
@@ -105,7 +106,7 @@ object SettingsUtils {
         /**
          * Toggles the vibration mode.
          */
-        fun toggleVibrationMode(params: ToggleSettingsParams): Boolean {
+        fun toggleVibrationMode(params: SettingsToggleParams): Boolean {
             val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             return try {
                 val isVibrationModeOn = audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE
@@ -116,7 +117,7 @@ object SettingsUtils {
                     audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
                     showToast(params.context, "Vibration mode", true)
                 }
-                params.setVibrationMode(!isVibrationModeOn)
+                params.onSettingChanged(!isVibrationModeOn)
                 true
             } catch (e: SecurityException) { // Catch the exception when the app is in DND mode
                 Toast.makeText(params.context, "Cannot change vibration settings in Do Not Disturb mode",
