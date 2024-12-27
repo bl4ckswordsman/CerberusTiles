@@ -95,24 +95,21 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
             }
         }
 
-        // Handle the intent action from the shortcut
-        if (intent?.action == TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION) {
-            toggleAdaptiveBrightness()
-        }
-        if (intent?.action == TOGGLE_VIBRATION_MODE_ACTION) {
-            toggleVibrationMode()
-        }
-
+        handleIntentAction(intent?.action)
     }
 
+    private fun handleIntentAction(action: String?) {
+        when (action) {
+            TOGGLE_ADAPTIVE_BRIGHTNESS_ACTION -> toggleAdaptiveBrightness()
+            TOGGLE_VIBRATION_MODE_ACTION -> toggleVibrationMode()
+        }
+    }
 
     private fun toggleAdaptiveBrightness() {
         val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
             _isAdaptive.value = newValue
         }
         SettingsUtils.Brightness.toggleAdaptiveBrightness(params)
-        // Update _isAdaptive after changing the setting
-        _isAdaptive.value = !(_isAdaptive.value ?: false)
     }
 
     private fun toggleVibrationMode(): Boolean {

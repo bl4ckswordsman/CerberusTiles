@@ -26,6 +26,10 @@ class OverlayActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        updateViewModelState()
+    }
+
+    private fun updateViewModelState() {
         viewModel.updateCanWrite(this)
         viewModel.updateIsSwitchedOn(this)
         viewModel.updateIsVibrationModeOn(this)
