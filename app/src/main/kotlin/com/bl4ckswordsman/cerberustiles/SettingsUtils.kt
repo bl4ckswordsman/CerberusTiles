@@ -18,7 +18,7 @@ object SettingsUtils {
      */
     data class SettingsToggleParams(
         val context: Context,
-        val updateVibrationMode: (Boolean) -> Unit
+        val onSettingChanged: (Boolean) -> Unit
     )
 
     /**
@@ -62,6 +62,7 @@ object SettingsUtils {
                 )
                 // Show a toast with the new state of adaptive brightness
                 showToast(params.context, "Adaptive brightness", !isAdaptive)
+                params.onSettingChanged(!isAdaptive)
             }
         }
 
@@ -116,7 +117,7 @@ object SettingsUtils {
                     audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
                     showToast(params.context, "Vibration mode", true)
                 }
-                params.updateVibrationMode(!isVibrationModeOn)
+                params.onSettingChanged(!isVibrationModeOn)
                 true
             } catch (e: SecurityException) { // Catch the exception when the app is in DND mode
                 Toast.makeText(params.context, "Cannot change vibration settings in Do Not Disturb mode",
