@@ -51,7 +51,7 @@ class OverlayActivity : ComponentActivity() {
                 isSwitchedOn = viewModel.isSwitchedOn.value,
                 setSwitchedOn = { viewModel.isSwitchedOn.value = it },
                 toggleAdaptiveBrightness = {
-                    val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
+                    val params = SettingsUtils.SettingsToggleParams(this) { newValue ->
                         viewModel.isSwitchedOn.value = newValue
                     }
                     Brightness.toggleAdaptiveBrightness(params)
@@ -60,7 +60,7 @@ class OverlayActivity : ComponentActivity() {
                 isVibrationModeOn = viewModel.isVibrationModeOn.value,
                 setVibrationMode = { viewModel.isVibrationModeOn.value = it },
                 toggleVibrationMode = {
-                    val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
+                    val params = SettingsUtils.SettingsToggleParams(this) { newValue ->
                         viewModel.isVibrationModeOn.value = newValue
                     }
                     Vibration.toggleVibrationMode(params)

@@ -106,14 +106,14 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
     }
 
     private fun toggleAdaptiveBrightness() {
-        val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
+        val params = SettingsUtils.SettingsToggleParams(this) { newValue ->
             _isAdaptive.value = newValue
         }
         SettingsUtils.Brightness.toggleAdaptiveBrightness(params)
     }
 
     private fun toggleVibrationMode(): Boolean {
-        val params = SettingsUtils.ToggleSettingsParams(this) { newValue ->
+        val params = SettingsUtils.SettingsToggleParams(this) { newValue ->
             _isVibrationMode.value = newValue
         }
         return SettingsUtils.Vibration.toggleVibrationMode(params)
