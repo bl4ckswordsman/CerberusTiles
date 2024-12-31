@@ -10,19 +10,23 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.view.WindowCompat
-import com.bl4ckswordsman.cerberustiles.MainViewModel
 import com.bl4ckswordsman.cerberustiles.SettingsUtils
 import com.bl4ckswordsman.cerberustiles.SettingsUtils.Brightness
-import com.bl4ckswordsman.cerberustiles.SettingsUtils.Vibration
+import com.bl4ckswordsman.cerberustiles.SettingsUtils.MainViewModel
+import com.bl4ckswordsman.cerberustiles.SettingsUtils.Vibration.toggleVibrationMode
+import com.bl4ckswordsman.cerberustiles.SettingsUtils.openPermissionSettings
+import com.bl4ckswordsman.cerberustiles.models.RingerMode
 import com.bl4ckswordsman.cerberustiles.ui.OverlayDialog
 import com.bl4ckswordsman.cerberustiles.ui.OverlayDialogParams
 import com.bl4ckswordsman.cerberustiles.ui.createSharedParams
+import com.bl4ckswordsman.cerberustiles.util.Ringer
 
 /**
  * A [ComponentActivity] that shows an overlay dialog with settings components.
  */
 class OverlayActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
+    private val _currentRingerMode = mutableStateOf(RingerMode.NORMAL)
 
     override fun onResume() {
         super.onResume()
@@ -33,6 +37,7 @@ class OverlayActivity : ComponentActivity() {
         viewModel.updateCanWrite(this)
         viewModel.updateIsSwitchedOn(this)
         viewModel.updateIsVibrationModeOn(this)
+        _currentRingerMode.value = Ringer.getCurrentRingerMode(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,16 +61,22 @@ class OverlayActivity : ComponentActivity() {
                     }
                     Brightness.toggleAdaptiveBrightness(params)
                 },
-                openPermissionSettings = { SettingsUtils.openPermissionSettings(this) },
+                openPermissionSettings = { openPermissionSettings(this) },
                 isVibrationModeOn = viewModel.isVibrationModeOn.value,
                 setVibrationMode = { viewModel.isVibrationModeOn.value = it },
                 toggleVibrationMode = {
                     val params = SettingsUtils.SettingsToggleParams(this) { newValue ->
                         viewModel.isVibrationModeOn.value = newValue
                     }
-                    Vibration.toggleVibrationMode(params)
+                    toggleVibrationMode(params)
                 },
                 sharedParams = createSharedParams()
+,
+                currentRingerMode = _currentRingerMode.value,
+                onRingerModeChange = { newMode ->
+                    _currentRingerMode.value = newMode
+                    viewModel.isVibrationModeOn.value = newMode == RingerMode.VIBRATE
+                }
             )
             OverlayDialog(params)
         }
