@@ -1,7 +1,5 @@
 package com.bl4ckswordsman.cerberustiles.ui
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -131,12 +129,12 @@ private fun RingerModeSelector(
                 enabled = enabled,
                 icon = {
                     when (mode) {
-                        RingerMode.NORMAL -> Icon( // TODO: Use an icon like the Pixel's
-                            imageVector = Icons.Default.Notifications,
+                        RingerMode.NORMAL -> Icon(
+                            painter = painterResource(id = R.drawable.outline_volume_up_24),
                             contentDescription = "Sound mode"
                         )
-                        RingerMode.SILENT -> Icon( // TODO: Use an icon like the Pixel's
-                            painter = painterResource(id = R.drawable.baseline_notifications_off_24),
+                        RingerMode.SILENT -> Icon(
+                            painter = painterResource(id = R.drawable.outline_volume_off_24),
                             contentDescription = "Silent mode"
                         )
                         RingerMode.VIBRATE -> Icon(
