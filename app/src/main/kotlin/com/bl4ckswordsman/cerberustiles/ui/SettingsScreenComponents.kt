@@ -212,10 +212,10 @@ fun CreateComponentVisibilityDialog(params: DialogCreationParams) {
                             .putBoolean("brightnessSlider", newValue).apply()
                     })
                     SettingsCheckbox(initialValue = params.sharedParams.sharedPreferences.getBoolean(
-                        "vibrationSwitch", true
-                    ), text = "3. Vibration Switch", onCheckedChange = { newValue ->
+                        "ringerModeSelector", true
+                    ), text = "3. Ringer Mode Selector", onCheckedChange = { newValue ->
                         params.sharedParams.sharedPreferences.edit()
-                            .putBoolean("vibrationSwitch", newValue).apply()
+                            .putBoolean("ringerModeSelector", newValue).apply()
                     })
                 }
             },
