@@ -77,6 +77,7 @@ fun SettingsComponents(params: SettingsComponentsParams) {
                             RingerMode.VIBRATE -> {
                                 params.setVibrationMode(true)
                             }
+
                             RingerMode.NORMAL, RingerMode.SILENT -> {
                                 params.setVibrationMode(false)
                             }
@@ -92,6 +93,9 @@ fun SettingsComponents(params: SettingsComponentsParams) {
     }
 }
 
+/**
+ * A composable that shows a segmented button row for selecting the ringer mode.
+ */
 @Composable
 private fun RingerModeSelector(
     currentMode: RingerMode,
@@ -99,68 +103,63 @@ private fun RingerModeSelector(
     enabled: Boolean = true
 ) {
     val context = LocalContext.current
-    println("Debug - RingerModeSelector currentMode: $currentMode")
 
     SingleChoiceSegmentedButtonRow {
         RingerMode.entries.forEachIndexed { index, mode ->
             SegmentedButton(
                 selected = currentMode == mode,
                 onClick = {
-                    println("Debug - Button clicked: $mode, Current: $currentMode")
                     if (enabled && currentMode != mode) {
-                        println("Debug - Attempting to change mode to: $mode")
-                        kotlin.runCatching {
-                            Ringer.setRingerMode(
-                                SettingsUtils.SettingsToggleParams(
-                                    context = context,
-                                    onSettingChanged = { _ ->
-                                        println("Debug - Callback triggered for mode: $mode")
-                                        onModeSelected(mode)
-                                    }
-                                ),
-                                mode
-                            )
-                        }.onFailure { e ->
-                            println("Debug - Error changing mode: ${e.message}")
-                        }
+                        changeRingerMode(context, mode, onModeSelected)
                     }
                 },
-                shape = SegmentedButtonDefaults.itemShape(index = index, count = RingerMode.entries.size),
+                shape = SegmentedButtonDefaults.itemShape(index, RingerMode.entries.size),
                 enabled = enabled,
                 icon = {
-                    when (mode) {
-                        RingerMode.NORMAL -> Icon(
-                            painter = if (currentMode == RingerMode.NORMAL)
-                                painterResource(id = R.drawable.baseline_volume_up_24)
-                            else
-                                painterResource(id = R.drawable.outline_volume_up_24),
-                            contentDescription = "Sound mode",
-                        )
-                        RingerMode.SILENT -> Icon(
-                            painter = if (currentMode == RingerMode.SILENT)
-                                painterResource(id = R.drawable.baseline_volume_off_24)
-                            else
-                                painterResource(id = R.drawable.outline_volume_off_24),
-                            contentDescription = "Silent mode",
-                        )
-                        RingerMode.VIBRATE -> Icon(
-                            painter = if (currentMode == RingerMode.VIBRATE)
-                                painterResource(id = R.drawable.twotone_vibration_24)
-                            else
-                                painterResource(id = R.drawable.baseline_vibration_24),
-                            contentDescription = "Vibrate mode",
-                        )
+                    val iconPainter = when (mode) {
+                        RingerMode.NORMAL -> if (currentMode == mode)
+                            painterResource(R.drawable.baseline_volume_up_24)
+                        else
+                            painterResource(R.drawable.outline_volume_up_24)
+
+                        RingerMode.SILENT -> if (currentMode == mode)
+                            painterResource(R.drawable.baseline_volume_off_24)
+                        else
+                            painterResource(R.drawable.outline_volume_off_24)
+
+                        RingerMode.VIBRATE -> if (currentMode == mode)
+                            painterResource(R.drawable.twotone_vibration_24)
+                        else
+                            painterResource(R.drawable.baseline_vibration_24)
                     }
+                    Icon(painter = iconPainter, contentDescription = mode.name)
                 }
             ) {
-                Text(
-                    text = when (mode) {
-                        RingerMode.NORMAL -> "Sound"
-                        RingerMode.SILENT -> "Silent"
-                        RingerMode.VIBRATE -> "Vibrate"
-                    }
-                )
+                Text(text = mode.name.lowercase().replaceFirstChar { it.uppercase() })
             }
         }
+    }
+}
+
+/**
+ * Changes the ringer mode.
+ */
+private fun changeRingerMode(
+    context: android.content.Context,
+    mode: RingerMode,
+    onModeSelected: (RingerMode) -> Unit
+) {
+    runCatching {
+        Ringer.setRingerMode(
+            SettingsUtils.SettingsToggleParams(
+                context = context,
+                onSettingChanged = { _ ->
+                    onModeSelected(mode)
+                }
+            ),
+            mode
+        )
+    }.onFailure { e ->
+        println("Error changing mode: ${e.message}")
     }
 }
