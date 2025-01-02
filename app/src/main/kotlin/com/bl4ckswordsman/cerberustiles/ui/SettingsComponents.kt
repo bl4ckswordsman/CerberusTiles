@@ -130,16 +130,25 @@ private fun RingerModeSelector(
                 icon = {
                     when (mode) {
                         RingerMode.NORMAL -> Icon(
-                            painter = painterResource(id = R.drawable.outline_volume_up_24),
-                            contentDescription = "Sound mode"
+                            painter = if (currentMode == RingerMode.NORMAL)
+                                painterResource(id = R.drawable.baseline_volume_up_24)
+                            else
+                                painterResource(id = R.drawable.outline_volume_up_24),
+                            contentDescription = "Sound mode",
                         )
                         RingerMode.SILENT -> Icon(
-                            painter = painterResource(id = R.drawable.outline_volume_off_24),
-                            contentDescription = "Silent mode"
+                            painter = if (currentMode == RingerMode.SILENT)
+                                painterResource(id = R.drawable.baseline_volume_off_24)
+                            else
+                                painterResource(id = R.drawable.outline_volume_off_24),
+                            contentDescription = "Silent mode",
                         )
                         RingerMode.VIBRATE -> Icon(
-                            painter = painterResource(id = R.drawable.baseline_vibration_24),
-                            contentDescription = "Vibrate mode"
+                            painter = if (currentMode == RingerMode.VIBRATE)
+                                painterResource(id = R.drawable.twotone_vibration_24)
+                            else
+                                painterResource(id = R.drawable.baseline_vibration_24),
+                            contentDescription = "Vibrate mode",
                         )
                     }
                 }
