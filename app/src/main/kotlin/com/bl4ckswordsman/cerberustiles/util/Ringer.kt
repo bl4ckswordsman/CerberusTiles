@@ -5,7 +5,13 @@ import android.media.AudioManager
 import com.bl4ckswordsman.cerberustiles.SettingsUtils
 import com.bl4ckswordsman.cerberustiles.models.RingerMode
 
+/**
+ * Utilities for the ringer mode.
+ */
 object Ringer {
+    /**
+     * Gets the current ringer mode.
+     */
     fun getCurrentRingerMode(context: Context): RingerMode {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         return when (audioManager.ringerMode) {
@@ -16,6 +22,9 @@ object Ringer {
         }
     }
 
+    /**
+     * Sets the ringer mode.
+     */
     fun setRingerMode(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode) {
         val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val currentMode = getCurrentRingerMode(params.context)
