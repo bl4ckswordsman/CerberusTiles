@@ -31,7 +31,7 @@ jobs:
         run: ./gradlew licenseReleaseReport assembleRelease
       - name: Sign APK
         id: sign_apk
-        uses: ilharp/sign-android-release@v1
+        uses: ilharp/sign-android-release@v2
         with:
           releaseDir: app/build/outputs/apk/release
           signingKey: ${{ secrets.SIGNING_KEYSTORE }}
