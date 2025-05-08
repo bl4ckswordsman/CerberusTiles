@@ -12,7 +12,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.LiveData
+import com.bl4ckswordsman.cerberustiles.models.RingerMode
 import com.bl4ckswordsman.cerberustiles.ui.theme.CustomTilesTheme
+import com.bl4ckswordsman.cerberustiles.util.Ringer
 
 /**
  * Parameters for the overlay dialog.
@@ -28,7 +30,9 @@ data class OverlayDialogParams(
     val isVibrationModeOn: Boolean,
     val setVibrationMode: (Boolean) -> Unit,
     val toggleVibrationMode: () -> Boolean,
-    val sharedParams: SharedParams
+    val sharedParams: SharedParams,
+    val currentRingerMode: RingerMode,
+    val onRingerModeChange: (RingerMode) -> Unit
 )
 
 /**
@@ -40,8 +44,11 @@ fun OverlayDialog(params: OverlayDialogParams) {
         params.sharedParams.sharedPreferences.getBoolean("adaptBrightnessSwitch", true)
     val brightnessSlider =
         params.sharedParams.sharedPreferences.getBoolean("brightnessSlider", true)
-    val vibrationSwitch = params.sharedParams.sharedPreferences.getBoolean("vibrationSwitch", true)
+    val ringerModeSelector = params.sharedParams.sharedPreferences.getBoolean("ringerModeSelector", true)
     val canWriteState by params.canWrite.observeAsState(initial = false)
+    val currentRingerMode = rememberSaveable {
+        mutableStateOf(Ringer.getCurrentRingerMode(params.sharedParams.context))
+    }
     if (params.showDialog.value) {
         Dialog(onDismissRequest = {
             params.showDialog.value = false
@@ -66,7 +73,7 @@ fun OverlayDialog(params: OverlayDialogParams) {
                                         brightnessSlider
                                     )
                                 },
-                                vibrationSwitch = rememberSaveable { mutableStateOf(vibrationSwitch) }
+                                ringerModeSelector = rememberSaveable { mutableStateOf(ringerModeSelector) }
                             )
                             val settingsComponentsParams = SettingsComponentsParams(
                                 canWriteState = canWriteState,
@@ -78,7 +85,9 @@ fun OverlayDialog(params: OverlayDialogParams) {
                                 setVibrationMode = params.setVibrationMode,
                                 toggleVibrationMode = params.toggleVibrationMode,
                                 componentVisibilityParams = componentVisibilityDialogParams,
-                                sharedParams = createSharedParams()
+                                sharedParams = createSharedParams(),
+                                currentRingerMode = currentRingerMode.value,
+                                onRingerModeChange = { newMode -> currentRingerMode.value = newMode }
                             )
                             SettingsComponents(settingsComponentsParams)
                         }

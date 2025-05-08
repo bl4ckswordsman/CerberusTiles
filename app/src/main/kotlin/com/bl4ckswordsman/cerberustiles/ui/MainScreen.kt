@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.bl4ckswordsman.cerberustiles.models.RingerMode
 import com.bl4ckswordsman.cerberustiles.navbar.BottomNavBar
 import com.bl4ckswordsman.cerberustiles.navbar.Screen
 import com.bl4ckswordsman.cerberustiles.Constants as label
@@ -48,7 +49,9 @@ data class MainScreenScaffoldParams(
     val openPermissionSettings: () -> Unit,
     val isVibrationModeOn: Boolean,
     val setVibrationMode: (Boolean) -> Unit,
-    val toggleVibrationMode: () -> Boolean
+    val toggleVibrationMode: () -> Boolean,
+    val currentRingerMode: LiveData<RingerMode>,    // Add this
+    val onRingerModeChange: (RingerMode) -> Unit    // Add this
 )
 
 /**
@@ -60,7 +63,9 @@ data class MainScreenParams(
     val toggleAdaptiveBrightness: () -> Unit,
     val isVibrationMode: LiveData<Boolean>,
     val toggleVibrationMode: () -> Boolean,
-    val openPermissionSettings: () -> Unit
+    val openPermissionSettings: () -> Unit,
+    val currentRingerMode: LiveData<RingerMode>,
+    val onRingerModeChange: (RingerMode) -> Unit
 )
 
 /**
@@ -76,7 +81,9 @@ data class MainScreenNavHostParams(
     val openPermissionSettings: () -> Unit,
     val isVibrationModeOn: Boolean,
     val setVibrationMode: (Boolean) -> Unit,
-    val toggleVibrationMode: () -> Boolean
+    val toggleVibrationMode: () -> Boolean,
+    val currentRingerMode: LiveData<RingerMode>,
+    val onRingerModeChange: (RingerMode) -> Unit
 )
 
 /**
@@ -111,7 +118,9 @@ fun MainScreenScaffold(params: MainScreenScaffoldParams) {
                 params.openPermissionSettings,
                 params.isVibrationModeOn,
                 params.setVibrationMode,
-                params.toggleVibrationMode
+                params.toggleVibrationMode,
+                params.currentRingerMode,
+                params.onRingerModeChange
             )
         )
     }
@@ -130,6 +139,8 @@ fun MainScreenNavHost(params: MainScreenNavHostParams) {
         { fadeIn() }
     val exitTrans: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         { fadeOut() }
+
+    val currentRingerMode by params.currentRingerMode.observeAsState(RingerMode.NORMAL)
 
     NavHost(params.navController, startDestination = Screen.Home.route) {
         composable(
@@ -151,8 +162,10 @@ fun MainScreenNavHost(params: MainScreenNavHostParams) {
                     componentVisibilityParams = ComponentVisibilityDialogParams(
                         adaptBrightnessSwitch = rememberSaveable { mutableStateOf(true) },
                         brightnessSlider = rememberSaveable { mutableStateOf(true) },
-                        vibrationSwitch = rememberSaveable { mutableStateOf(true) }
-                    )
+                        ringerModeSelector = rememberSaveable { mutableStateOf(true) }
+                    ),
+                    currentRingerMode = currentRingerMode,
+                    onRingerModeChange = params.onRingerModeChange
                 )
                 SettingsComponents(settingsCompParams)
             }
@@ -217,7 +230,9 @@ fun MainScreen(params: MainScreenParams) {
             params.openPermissionSettings,
             isVibrationModeOn,
             setVibrationMode,
-            params.toggleVibrationMode
+            params.toggleVibrationMode,
+            params.currentRingerMode,
+            params.onRingerModeChange
         )
     )
 }
@@ -235,6 +250,8 @@ fun MainScreenPreview() {
             toggleAdaptiveBrightness = {},
             isVibrationMode = MutableLiveData(true),
             toggleVibrationMode = { true },
-            openPermissionSettings = {})
+            openPermissionSettings = {},
+            currentRingerMode = MutableLiveData(RingerMode.NORMAL),
+            onRingerModeChange = {})
     )
 }

@@ -31,9 +31,9 @@ object SettingsUtils {
     /**
      * Shows a toast with the given message.
      */
-    fun showToast(context: Context, setting: String, isEnabled: Boolean) {
+    fun showToast(context: Context, message: String, isEnabled: Boolean) {
         val state = if (isEnabled) "enabled" else "disabled"
-        Toast.makeText(context, "$setting $state", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "$message $state", Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -95,6 +95,7 @@ object SettingsUtils {
      * Utilities for vibration settings.
      */
     object Vibration {
+
         /**
          * Checks if the vibration mode is enabled.
          */
@@ -107,7 +108,8 @@ object SettingsUtils {
          * Toggles the vibration mode.
          */
         fun toggleVibrationMode(params: SettingsToggleParams): Boolean {
-            val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val audioManager =
+                params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             return try {
                 val isVibrationModeOn = audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE
                 if (isVibrationModeOn) {
@@ -120,8 +122,10 @@ object SettingsUtils {
                 params.onSettingChanged(!isVibrationModeOn)
                 true
             } catch (e: SecurityException) { // Catch the exception when the app is in DND mode
-                Toast.makeText(params.context, "Cannot change vibration settings in Do Not Disturb mode",
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText( // TODO: Split some logic away from Vibration class and fix implementation for Silent mode in Ringer Mode Selector
+                    params.context, "Cannot change vibration settings in Do Not Disturb mode",
+                    Toast.LENGTH_SHORT
+                ).show()
                 false
             }
         }
@@ -137,35 +141,35 @@ object SettingsUtils {
         }
         context.startActivity(intent)
     }
-}
-
-/**
- * The main view model that holds the state of the settings.
- */
-class MainViewModel : ViewModel() {
-    val canWrite = MutableLiveData<Boolean>()
-    val isSwitchedOn = mutableStateOf(false)
-    val isVibrationModeOn = mutableStateOf(false)
 
     /**
-     * Updates the state of the canWrite setting.
+     * The main view model that holds the state of the settings.
      */
-    fun updateCanWrite(context: Context) {
-        canWrite.value = SettingsUtils.canWriteSettings(context)
-    }
+    class MainViewModel : ViewModel() {
+        val canWrite = MutableLiveData<Boolean>()
+        val isSwitchedOn = mutableStateOf(false)
+        val isVibrationModeOn = mutableStateOf(false)
 
-    /**
-     * Updates the state of the adaptive brightness setting.
-     */
-    fun updateIsSwitchedOn(context: Context) {
-        isSwitchedOn.value = SettingsUtils.Brightness.isAdaptiveBrightnessEnabled(context)
-    }
+        /**
+         * Updates the state of the canWrite setting.
+         */
+        fun updateCanWrite(context: Context) {
+            canWrite.value = SettingsUtils.canWriteSettings(context)
+        }
 
-    /**
-     * Updates the state of the vibration mode setting.
-     */
-    fun updateIsVibrationModeOn(context: Context) {
-        isVibrationModeOn.value = SettingsUtils.Vibration.isVibrationModeEnabled(context)
+        /**
+         * Updates the state of the adaptive brightness setting.
+         */
+        fun updateIsSwitchedOn(context: Context) {
+            isSwitchedOn.value = SettingsUtils.Brightness.isAdaptiveBrightnessEnabled(context)
+        }
+
+        /**
+         * Updates the state of the vibration mode setting.
+         */
+        fun updateIsVibrationModeOn(context: Context) {
+            isVibrationModeOn.value = Vibration.isVibrationModeEnabled(context)
+        }
     }
 }
 
