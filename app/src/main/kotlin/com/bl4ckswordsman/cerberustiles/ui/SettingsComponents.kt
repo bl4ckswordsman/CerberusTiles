@@ -77,23 +77,7 @@ fun SettingsComponents(params: SettingsComponentsParams) {
         RingerModeSelectionSegmentedButtonRow(
             currentMode = params.currentRingerMode,
             onModeSelected = { newMode ->
-                if (params.canWriteState) {
-                    // Only process if we're selecting a different mode
-                    if (newMode != params.currentRingerMode) {
-                        when (newMode) {
-                            RingerMode.VIBRATE -> {
-                                params.setVibrationMode(true)
-                            }
-
-                            RingerMode.NORMAL, RingerMode.SILENT -> {
-                                params.setVibrationMode(false)
-                            }
-                        }
-                        params.onRingerModeChange(newMode)
-                    }
-                } else {
-                    params.openPermissionSettings()
-                }
+                RingerModeHandler(params, newMode).handleModeSelection()
             }
         )
     }
@@ -120,35 +104,15 @@ private fun RingerModeSelectionSegmentedButtonRow(
                 SegmentedButton(
                     selected = currentMode == mode,
                     onClick = {
-                        if (currentMode != mode) {
-                            // Check write settings permission
-                            if (!SettingsUtils.canWriteSettings(context)) {
-                                SettingsUtils.openPermissionSettings(context)
-                            } else {
-                                triggerRingerModeChangeOnSelection(context, mode, onModeSelected)
-                            }
-                        }
+                        SegmentedButtonClickHandler(context, currentMode, mode, onModeSelected).handle()
                     },
                     shape = SegmentedButtonDefaults.itemShape(index, RingerMode.entries.size),
                     enabled = true, // Always enabled so clicks work for permission requests
                     icon = {
-                        val iconPainter = when (mode) {
-                            RingerMode.NORMAL -> if (currentMode == mode)
-                                painterResource(R.drawable.baseline_volume_up_24)
-                            else
-                                painterResource(R.drawable.outline_volume_up_24)
-
-                            RingerMode.SILENT -> if (currentMode == mode)
-                                painterResource(R.drawable.baseline_volume_off_24)
-                            else
-                                painterResource(R.drawable.outline_volume_off_24)
-
-                            RingerMode.VIBRATE -> if (currentMode == mode)
-                                painterResource(R.drawable.twotone_vibration_24)
-                            else
-                                painterResource(R.drawable.baseline_vibration_24)
-                        }
-                        Icon(painter = iconPainter, contentDescription = mode.name)
+                        Icon(
+                            painter = getIconForMode(mode, currentMode),
+                            contentDescription = mode.name
+                        )
                     }
                 ) {
                     Text(text = mode.name.lowercase().replaceFirstChar { it.uppercase() })
@@ -176,4 +140,80 @@ private fun triggerRingerModeChangeOnSelection(
     }.onFailure { e ->
         println("Error changing mode: ${e.message}")
     }
+}
+
+/**
+ * Handles ringer mode selection logic to reduce complexity.
+ */
+private class RingerModeHandler(
+    private val params: SettingsComponentsParams,
+    private val newMode: RingerMode
+) {
+    fun handleModeSelection() {
+        if (params.canWriteState) {
+            handleModeChangeWithPermission()
+        } else {
+            params.openPermissionSettings()
+        }
+    }
+
+    private fun handleModeChangeWithPermission() {
+        // Only process if we're selecting a different mode
+        if (newMode != params.currentRingerMode) {
+            updateVibrationMode()
+            params.onRingerModeChange(newMode)
+        }
+    }
+
+    private fun updateVibrationMode() {
+        when (newMode) {
+            RingerMode.VIBRATE -> {
+                params.setVibrationMode(true)
+            }
+            RingerMode.NORMAL, RingerMode.SILENT -> {
+                params.setVibrationMode(false)
+            }
+        }
+    }
+}
+
+/**
+ * Handles click events for segmented buttons to reduce complexity.
+ */
+private class SegmentedButtonClickHandler(
+    private val context: android.content.Context,
+    private val currentMode: RingerMode,
+    private val selectedMode: RingerMode,
+    private val onModeSelected: (RingerMode) -> Unit
+) {
+    fun handle() {
+        if (currentMode != selectedMode) {
+            if (!SettingsUtils.canWriteSettings(context)) {
+                SettingsUtils.openPermissionSettings(context)
+            } else {
+                triggerRingerModeChangeOnSelection(context, selectedMode, onModeSelected)
+            }
+        }
+    }
+}
+
+/**
+ * Gets the appropriate icon for the given mode and current selection state.
+ */
+@Composable
+private fun getIconForMode(mode: RingerMode, currentMode: RingerMode) = when (mode) {
+    RingerMode.NORMAL -> if (currentMode == mode)
+        painterResource(R.drawable.baseline_volume_up_24)
+    else
+        painterResource(R.drawable.outline_volume_up_24)
+
+    RingerMode.SILENT -> if (currentMode == mode)
+        painterResource(R.drawable.baseline_volume_off_24)
+    else
+        painterResource(R.drawable.outline_volume_off_24)
+
+    RingerMode.VIBRATE -> if (currentMode == mode)
+        painterResource(R.drawable.twotone_vibration_24)
+    else
+        painterResource(R.drawable.baseline_vibration_24)
 }
