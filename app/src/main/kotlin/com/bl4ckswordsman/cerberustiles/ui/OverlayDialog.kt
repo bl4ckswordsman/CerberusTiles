@@ -94,7 +94,8 @@ fun OverlayDialog(params: OverlayDialogParams) {
                                 currentRingerMode = currentRingerMode.value,
                                 onRingerModeChange = { newMode ->
                                     currentRingerMode.value = newMode
-                                }
+                                },
+                                isOverlayContext = true
                             )
                             SettingsComponents(settingsComponentsParams)
                         }

@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -16,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bl4ckswordsman.cerberustiles.R
 import com.bl4ckswordsman.cerberustiles.SettingsUtils
 import com.bl4ckswordsman.cerberustiles.models.RingerMode
@@ -46,7 +49,8 @@ data class SettingsComponentsParams(
     val toggleVibrationMode: () -> Boolean,
     val sharedParams: SharedParams,
     val currentRingerMode: RingerMode,
-    val onRingerModeChange: (RingerMode) -> Unit
+    val onRingerModeChange: (RingerMode) -> Unit,
+    val isOverlayContext: Boolean = false
 )
 
 /**
@@ -76,6 +80,7 @@ fun SettingsComponents(params: SettingsComponentsParams) {
     if (params.componentVisibilityParams.ringerModeSelector.value) {
         RingerModeSelectionSegmentedButtonRow(
             currentMode = params.currentRingerMode,
+            isOverlayContext = params.isOverlayContext,
             onModeSelected = { newMode ->
                 RingerModeHandler(params, newMode).handleModeSelection()
             }
@@ -86,6 +91,7 @@ fun SettingsComponents(params: SettingsComponentsParams) {
 @Composable
 private fun RingerModeSelectionSegmentedButtonRow(
     currentMode: RingerMode,
+    isOverlayContext: Boolean = false,
     onModeSelected: (RingerMode) -> Unit
 ) {
     val context = LocalContext.current
@@ -119,11 +125,19 @@ private fun RingerModeSelectionSegmentedButtonRow(
                     icon = {
                         Icon(
                             painter = getIconForMode(mode, currentMode),
-                            contentDescription = mode.name
+                            contentDescription = mode.name,
+                            modifier = if (isOverlayContext) Modifier.size(16.dp) else Modifier
                         )
                     }
                 ) {
-                    Text(text = mode.name.lowercase().replaceFirstChar { it.uppercase() })
+                    Text(
+                        text = mode.name.lowercase().replaceFirstChar { it.uppercase() },
+                        style = if (isOverlayContext) {
+                            LocalTextStyle.current.copy(fontSize = 12.sp)
+                        } else {
+                            LocalTextStyle.current
+                        }
+                    )
                 }
             }
         }
