@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.bl4ckswordsman.cerberustiles.util.AutomaticZenManager
 import kotlin.math.pow
 
 /** Utilities for different settings. */
@@ -147,7 +148,7 @@ object SettingsUtils {
     }
 
     /**
-     * Utilities for silent mode settings.
+     * Utilities for silent mode settings using AutomaticZenManager.
      */
     object Silent {
 
@@ -155,12 +156,16 @@ object SettingsUtils {
          * Checks if the silent mode is enabled.
          */
         fun isSilentModeEnabled(context: Context): Boolean {
+            // Check both audio manager and DND state for complete silent mode
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            return audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT
+            val isAudioSilent = audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT
+            val isDndActive = AutomaticZenManager.isSilentModeActive(context)
+            
+            return isAudioSilent || isDndActive
         }
 
         /**
-         * Toggles the silent mode.
+         * Toggles the silent mode using AutomaticZenManager for Android 15+ compatibility.
          */
         fun toggleSilentMode(params: SettingsToggleParams): Boolean {
             // Check if we have write settings permission
@@ -168,23 +173,33 @@ object SettingsUtils {
                 openPermissionSettings(params.context)
                 return false
             }
-            
-            val audioManager =
-                params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
             return try {
-                val isSilentModeOn = audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT
+                val isSilentModeOn = isSilentModeEnabled(params.context)
                 if (isSilentModeOn) {
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                    showToast(params.context, "Silent mode", false)
+                    // Deactivate silent mode
+                    val success = AutomaticZenManager.deactivateSilentMode(params.context)
+                    if (success) {
+                        val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                        audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                        showToast(params.context, "Silent mode", false)
+                        params.onSettingChanged(false)
+                    }
+                    success
                 } else {
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                    showToast(params.context, "Silent mode", true)
+                    // Activate silent mode
+                    val success = AutomaticZenManager.activateSilentMode(params.context)
+                    if (success) {
+                        val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                        audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                        showToast(params.context, "Silent mode", true)
+                        params.onSettingChanged(true)
+                    }
+                    success
                 }
-                params.onSettingChanged(!isSilentModeOn)
-                true
-            } catch (e: SecurityException) { // Catch the exception when the app is in DND mode
+            } catch (e: SecurityException) {
                 Toast.makeText(
-                    params.context, "Cannot change silent mode settings in Do Not Disturb mode",
+                    params.context, "Cannot change silent mode settings. Please check permissions.",
                     Toast.LENGTH_SHORT
                 ).show()
                 false

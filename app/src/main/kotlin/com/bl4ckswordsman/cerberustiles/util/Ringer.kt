@@ -33,47 +33,29 @@ object Ringer {
         // Only proceed if the new mode is different from the current mode
         if (currentMode != newMode) {
             try {
-                // For silent mode, we need DND permission and enable DND first
+                // For silent mode, use AutomaticZenManager for Android 15+ compatibility
                 if (newMode == RingerMode.SILENT) {
-                    val notificationManager = params.context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    
-                    // Check if we have DND permission
-                    if (!notificationManager.isNotificationPolicyAccessGranted) {
-                        Toast.makeText(
-                            params.context,
-                            "Silent mode requires Do Not Disturb permission. Redirecting to settings...",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        SettingsUtils.openDndPermissionSettings(params.context)
-                        return
+                    val success = AutomaticZenManager.activateSilentMode(params.context)
+                    if (!success) {
+                        return // AutomaticZenManager already handles error messaging and permission requests
                     }
                     
-                    // Enable Do Not Disturb (INTERRUPTION_FILTER_NONE means complete silence)
-                    notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
-                    
-                    // Small delay to ensure DND is activated
-                    Thread.sleep(100)
-                }
-                
-                // Temporarily set to normal to prevent DND activation (except for silent mode)
-                if (newMode != RingerMode.SILENT) {
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                }
-                
-                // Then set to the desired mode
-                val systemMode = when (newMode) {
-                    RingerMode.NORMAL -> {
-                        // When switching to normal, also disable DND
-                        val notificationManager = params.context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                        if (notificationManager.isNotificationPolicyAccessGranted) {
-                            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
-                        }
-                        AudioManager.RINGER_MODE_NORMAL
+                    // Set the audio manager to silent mode as well
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                } else {
+                    // For normal and vibrate modes, deactivate silent mode first if it was active
+                    if (AutomaticZenManager.isSilentModeActive(params.context)) {
+                        AutomaticZenManager.deactivateSilentMode(params.context)
                     }
-                    RingerMode.SILENT -> AudioManager.RINGER_MODE_SILENT
-                    RingerMode.VIBRATE -> AudioManager.RINGER_MODE_VIBRATE
+                    
+                    // Set the desired mode
+                    val systemMode = when (newMode) {
+                        RingerMode.NORMAL -> AudioManager.RINGER_MODE_NORMAL
+                        RingerMode.VIBRATE -> AudioManager.RINGER_MODE_VIBRATE
+                        RingerMode.SILENT -> AudioManager.RINGER_MODE_SILENT // Should not reach here
+                    }
+                    audioManager.ringerMode = systemMode
                 }
-                audioManager.ringerMode = systemMode
                 
                 // Verify the change was successful
                 val updatedMode = getCurrentRingerMode(params.context)
