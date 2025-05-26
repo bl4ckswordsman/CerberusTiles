@@ -54,7 +54,9 @@ class ToggleAdaptiveBrightnessActivity : BaseToggleActivity() {
 class ToggleVibrationModeActivity : BaseToggleActivity() {
     /** Checks if the app has the necessary permissions. */
     override fun hasRequiredPermissions(): Boolean {
-        return SettingsUtils.canWriteSettings(this) && SettingsUtils.canAccessNotificationPolicy(this)
+        return SettingsUtils.canWriteSettings(this) && SettingsUtils.canAccessNotificationPolicy(
+            this
+        )
     }
 
     /** Toggles the vibration mode setting. */

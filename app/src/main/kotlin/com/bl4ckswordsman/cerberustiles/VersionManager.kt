@@ -99,12 +99,15 @@ class VersionManager {
     }
 
     private fun isValidVersion(version: String): Boolean {
-        return version.isNotEmpty() && version.all { it.isDigit() || it == '.' || it == 'v' } && version.contains(".")
+        return version.isNotEmpty() && version.all { it.isDigit() || it == '.' || it == 'v' } && version.contains(
+            "."
+        )
     }
 
     private fun parseVersion(version: String): List<Int> {
         return if (isValidVersion(version)) {
-            val versionWithoutPrefix = if (version.startsWith("v")) version.removePrefix("v") else version
+            val versionWithoutPrefix =
+                if (version.startsWith("v")) version.removePrefix("v") else version
             if (versionWithoutPrefix.contains(".")) {
                 versionWithoutPrefix.split(".").map { it.toInt() }
             } else {
@@ -121,7 +124,10 @@ class VersionManager {
      * @param context The context of the app.
      * @return The latest release info.
      */
-    suspend fun fetchAndParseVersionInfo(context: Context, versionManager: VersionManager): Pair<Boolean, ReleaseInfo> {
+    suspend fun fetchAndParseVersionInfo(
+        context: Context,
+        versionManager: VersionManager
+    ): Pair<Boolean, ReleaseInfo> {
         val releaseInfo = fetchLatestReleaseInfo(context)
 
         // Parse the version numbers

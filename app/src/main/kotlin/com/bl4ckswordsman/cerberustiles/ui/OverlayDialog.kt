@@ -44,7 +44,8 @@ fun OverlayDialog(params: OverlayDialogParams) {
         params.sharedParams.sharedPreferences.getBoolean("adaptBrightnessSwitch", true)
     val brightnessSlider =
         params.sharedParams.sharedPreferences.getBoolean("brightnessSlider", true)
-    val ringerModeSelector = params.sharedParams.sharedPreferences.getBoolean("ringerModeSelector", true)
+    val ringerModeSelector =
+        params.sharedParams.sharedPreferences.getBoolean("ringerModeSelector", true)
     val canWriteState by params.canWrite.observeAsState(initial = false)
     val currentRingerMode = rememberSaveable {
         mutableStateOf(Ringer.getCurrentRingerMode(params.sharedParams.context))
@@ -73,7 +74,11 @@ fun OverlayDialog(params: OverlayDialogParams) {
                                         brightnessSlider
                                     )
                                 },
-                                ringerModeSelector = rememberSaveable { mutableStateOf(ringerModeSelector) }
+                                ringerModeSelector = rememberSaveable {
+                                    mutableStateOf(
+                                        ringerModeSelector
+                                    )
+                                }
                             )
                             val settingsComponentsParams = SettingsComponentsParams(
                                 canWriteState = canWriteState,
@@ -87,7 +92,9 @@ fun OverlayDialog(params: OverlayDialogParams) {
                                 componentVisibilityParams = componentVisibilityDialogParams,
                                 sharedParams = createSharedParams(),
                                 currentRingerMode = currentRingerMode.value,
-                                onRingerModeChange = { newMode -> currentRingerMode.value = newMode }
+                                onRingerModeChange = { newMode ->
+                                    currentRingerMode.value = newMode
+                                }
                             )
                             SettingsComponents(settingsComponentsParams)
                         }

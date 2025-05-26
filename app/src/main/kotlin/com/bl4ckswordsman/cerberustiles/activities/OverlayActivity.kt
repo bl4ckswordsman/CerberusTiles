@@ -70,8 +70,7 @@ class OverlayActivity : ComponentActivity() {
                     }
                     toggleVibrationMode(params)
                 },
-                sharedParams = createSharedParams()
-,
+                sharedParams = createSharedParams(),
                 currentRingerMode = _currentRingerMode.value,
                 onRingerModeChange = { newMode ->
                     _currentRingerMode.value = newMode

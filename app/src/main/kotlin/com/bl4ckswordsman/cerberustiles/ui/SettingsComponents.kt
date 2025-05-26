@@ -93,7 +93,10 @@ private fun RingerModeSelectionSegmentedButtonRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp), // Padding to match other components' spacing
+            .padding(
+                horizontal = 16.dp,
+                vertical = 12.dp
+            ), // Padding to match other components' spacing
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -104,7 +107,12 @@ private fun RingerModeSelectionSegmentedButtonRow(
                 SegmentedButton(
                     selected = currentMode == mode,
                     onClick = {
-                        SegmentedButtonClickHandler(context, currentMode, mode, onModeSelected).handle()
+                        SegmentedButtonClickHandler(
+                            context,
+                            currentMode,
+                            mode,
+                            onModeSelected
+                        ).handle()
                     },
                     shape = SegmentedButtonDefaults.itemShape(index, RingerMode.entries.size),
                     enabled = true, // Always enabled so clicks work for permission requests
@@ -170,6 +178,7 @@ private class RingerModeHandler(
             RingerMode.VIBRATE -> {
                 params.setVibrationMode(true)
             }
+
             RingerMode.NORMAL, RingerMode.SILENT -> {
                 params.setVibrationMode(false)
             }

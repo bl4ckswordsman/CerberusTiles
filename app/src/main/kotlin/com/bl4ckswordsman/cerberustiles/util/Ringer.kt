@@ -1,6 +1,5 @@
 package com.bl4ckswordsman.cerberustiles.util
 
-import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioManager
 import android.widget.Toast
@@ -12,10 +11,10 @@ import com.bl4ckswordsman.cerberustiles.models.RingerMode
  * Handles mode changes with proper permission checking and DND integration.
  */
 object Ringer {
-    
+
     /**
      * Gets the current ringer mode from the device's audio manager.
-     * 
+     *
      * @param context The application context
      * @return The current [RingerMode] (NORMAL, SILENT, or VIBRATE)
      */
@@ -31,7 +30,7 @@ object Ringer {
 
     /**
      * Sets the device ringer mode with proper permission checking and DND integration.
-     * 
+     *
      * @param params The settings toggle parameters containing context and callbacks
      * @param newMode The desired [RingerMode] to set
      */
@@ -43,7 +42,7 @@ object Ringer {
 
         val currentMode = getCurrentRingerMode(params.context)
         if (currentMode == newMode) return
-        
+
         val modeChangeResult = RingerModeChanger(params, newMode).execute()
         if (modeChangeResult.success) {
             params.onSettingChanged(true)
@@ -58,7 +57,7 @@ object Ringer {
         private val newMode: RingerMode
     ) {
         data class ChangeResult(val success: Boolean, val message: String? = null)
-        
+
         fun execute(): ChangeResult {
             return try {
                 applyRingerModeChange()
@@ -68,28 +67,29 @@ object Ringer {
                 ChangeResult(false, e.message)
             }
         }
-        
+
         private fun applyRingerModeChange() {
-            val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            
+            val audioManager =
+                params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
             when (newMode) {
                 RingerMode.SILENT -> applySilentMode(audioManager)
                 else -> applyNonSilentMode(audioManager)
             }
         }
-        
+
         private fun applySilentMode(audioManager: AudioManager) {
             val success = AutomaticZenManager.activateSilentMode(params.context)
             if (success) {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
             }
         }
-        
+
         private fun applyNonSilentMode(audioManager: AudioManager) {
             if (AutomaticZenManager.isSilentModeActive(params.context)) {
                 AutomaticZenManager.deactivateSilentMode(params.context)
             }
-            
+
             val systemMode = when (newMode) {
                 RingerMode.NORMAL -> AudioManager.RINGER_MODE_NORMAL
                 RingerMode.VIBRATE -> AudioManager.RINGER_MODE_VIBRATE
@@ -97,10 +97,10 @@ object Ringer {
             }
             audioManager.ringerMode = systemMode
         }
-        
+
         private fun verifyAndNotifyModeChange(): ChangeResult {
             val updatedMode = getCurrentRingerMode(params.context)
-            
+
             return if (updatedMode == newMode) {
                 val modeName = getModeDisplayName(newMode)
                 SettingsUtils.showToast(params.context, modeName, true)
@@ -109,14 +109,14 @@ object Ringer {
                 ChangeResult(false, "Mode change verification failed")
             }
         }
-        
+
         private fun handleSecurityException(e: SecurityException) {
             when (newMode) {
                 RingerMode.SILENT -> showSilentModeError()
                 else -> showGeneralError(e.message)
             }
         }
-        
+
         private fun showSilentModeError() {
             Toast.makeText(
                 params.context,
@@ -125,7 +125,7 @@ object Ringer {
             ).show()
             SettingsUtils.openDndPermissionSettings(params.context)
         }
-        
+
         private fun showGeneralError(message: String?) {
             Toast.makeText(
                 params.context,
@@ -133,9 +133,9 @@ object Ringer {
                 Toast.LENGTH_LONG
             ).show()
         }
-        
+
         private fun getModeDisplayName(mode: RingerMode): String {
-            return when(mode) {
+            return when (mode) {
                 RingerMode.NORMAL -> "Sound mode"
                 RingerMode.SILENT -> "Silent mode"
                 RingerMode.VIBRATE -> "Vibrate mode"

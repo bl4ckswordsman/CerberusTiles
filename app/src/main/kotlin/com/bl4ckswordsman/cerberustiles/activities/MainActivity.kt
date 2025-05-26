@@ -77,16 +77,16 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
             CustomTilesTheme {
                 MainScreen(
                     MainScreenParams(canWrite = canWrite,
-                    isAdaptive = isAdaptive,
-                    toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
-                    isVibrationMode = isVibrationMode,
-                    toggleVibrationMode = ::toggleVibrationMode,
-                    openPermissionSettings = { openPermissionSettings(this) },
-                    currentRingerMode = currentRingerMode,
-                    onRingerModeChange = { newMode ->
-                        _currentRingerMode.value = newMode
-                        _isVibrationMode.value = newMode == RingerMode.VIBRATE
-                    }
+                        isAdaptive = isAdaptive,
+                        toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
+                        isVibrationMode = isVibrationMode,
+                        toggleVibrationMode = ::toggleVibrationMode,
+                        openPermissionSettings = { openPermissionSettings(this) },
+                        currentRingerMode = currentRingerMode,
+                        onRingerModeChange = { newMode ->
+                            _currentRingerMode.value = newMode
+                            _isVibrationMode.value = newMode == RingerMode.VIBRATE
+                        }
                     )
                 )
             }
@@ -94,21 +94,20 @@ class MainActivity : ComponentActivity(), LifecycleObserver {
                 showDialog = showOverlayDialog,
                 onDismiss = { showOverlayDialog.value = false },
                 canWrite = _canWrite,
-                isSwitchedOn = _isAdaptive.value ?: false,
+                isSwitchedOn = _isAdaptive.value == true,
                 setSwitchedOn = { _isAdaptive.value = it },
                 toggleAdaptiveBrightness = ::toggleAdaptiveBrightness,
                 openPermissionSettings = { openPermissionSettings(this) },
-                isVibrationModeOn = _isVibrationMode.value ?: false,
+                isVibrationModeOn = _isVibrationMode.value == true,
                 setVibrationMode = { _isVibrationMode.value = it },
                 toggleVibrationMode = ::toggleVibrationMode,
-                sharedParams = createSharedParams()
-        ,
-        currentRingerMode = _currentRingerMode.value ?: RingerMode.NORMAL,
-        onRingerModeChange = { newMode ->
-            println("Debug - MainActivity onRingerModeChange: $newMode")
-            _currentRingerMode.value = newMode
-            _isVibrationMode.value = newMode == RingerMode.VIBRATE
-        }
+                sharedParams = createSharedParams(),
+                currentRingerMode = _currentRingerMode.value ?: RingerMode.NORMAL,
+                onRingerModeChange = { newMode ->
+                    println("Debug - MainActivity onRingerModeChange: $newMode")
+                    _currentRingerMode.value = newMode
+                    _isVibrationMode.value = newMode == RingerMode.VIBRATE
+                }
             )
             OverlayDialog(params)
             if (intent?.action == "com.bl4ckswordsman.cerberustiles.OPEN_OVERLAY") {
