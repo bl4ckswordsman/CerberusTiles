@@ -74,7 +74,7 @@ fun SettingsComponents(params: SettingsComponentsParams) {
     }
 
     if (params.componentVisibilityParams.ringerModeSelector.value) {
-        RingerModeSelector(
+        RingerModeSegmentedButtonRow(
             currentMode = params.currentRingerMode,
             onModeSelected = { newMode ->
                 if (params.canWriteState) {
@@ -94,20 +94,19 @@ fun SettingsComponents(params: SettingsComponentsParams) {
                 } else {
                     params.openPermissionSettings()
                 }
-            },
-            enabled = params.canWriteState
+            }
         )
     }
 }
 
 /**
- * A composable that shows a segmented button row for selecting the ringer mode.
+ * Composable segmented button row for selecting between Normal, Silent, and Vibrate ringer modes.
+ * Handles permission checking and mode switching with proper user feedback.
  */
 @Composable
-private fun RingerModeSelector(
+private fun RingerModeSegmentedButtonRow(
     currentMode: RingerMode,
-    onModeSelected: (RingerMode) -> Unit,
-    enabled: Boolean = true
+    onModeSelected: (RingerMode) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -130,7 +129,7 @@ private fun RingerModeSelector(
                             if (!SettingsUtils.canWriteSettings(context)) {
                                 SettingsUtils.openPermissionSettings(context)
                             } else {
-                                changeRingerMode(context, mode, onModeSelected)
+                                handleRingerModeSelection(context, mode, onModeSelected)
                             }
                         }
                     },
@@ -164,9 +163,9 @@ private fun RingerModeSelector(
 }
 
 /**
- * Changes the ringer mode.
+ * Handles ringer mode selection by triggering the appropriate mode change.
  */
-private fun changeRingerMode(
+private fun handleRingerModeSelection(
     context: android.content.Context,
     mode: RingerMode,
     onModeSelected: (RingerMode) -> Unit
