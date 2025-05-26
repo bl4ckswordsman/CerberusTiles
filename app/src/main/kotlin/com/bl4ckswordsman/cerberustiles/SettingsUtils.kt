@@ -1,9 +1,11 @@
 package com.bl4ckswordsman.cerberustiles
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
@@ -29,13 +31,20 @@ object SettingsUtils {
     }
 
     /**
-     * Shows a toast with the given message.
+     * Checks if the app can access notification policy (DND settings).
      */
-    fun showToast(context: Context, message: String, isEnabled: Boolean) {
-        val state = if (isEnabled) "enabled" else "disabled"
-        Toast.makeText(context, "$message $state", Toast.LENGTH_SHORT).show()
+    fun canAccessNotificationPolicy(context: Context): Boolean {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        return notificationManager.isNotificationPolicyAccessGranted
     }
 
+    /**
+     * Shows a toast with the given message.
+     */
+    fun showToast(context: Context, setting: String, isEnabled: Boolean) {
+        val state = if (isEnabled) "enabled" else "disabled"
+        Toast.makeText(context, "$setting $state", Toast.LENGTH_SHORT).show()
+        }
     /**
      * Utilities for brightness settings.
      */
@@ -108,6 +117,12 @@ object SettingsUtils {
          * Toggles the vibration mode.
          */
         fun toggleVibrationMode(params: SettingsToggleParams): Boolean {
+            // Check if we have write settings permission
+            if (!canWriteSettings(params.context)) {
+                openPermissionSettings(params.context)
+                return false
+            }
+            
             val audioManager =
                 params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             return try {
@@ -132,6 +147,52 @@ object SettingsUtils {
     }
 
     /**
+     * Utilities for silent mode settings.
+     */
+    object Silent {
+
+        /**
+         * Checks if the silent mode is enabled.
+         */
+        fun isSilentModeEnabled(context: Context): Boolean {
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            return audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT
+        }
+
+        /**
+         * Toggles the silent mode.
+         */
+        fun toggleSilentMode(params: SettingsToggleParams): Boolean {
+            // Check if we have write settings permission
+            if (!canWriteSettings(params.context)) {
+                openPermissionSettings(params.context)
+                return false
+            }
+            
+            val audioManager =
+                params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            return try {
+                val isSilentModeOn = audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT
+                if (isSilentModeOn) {
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                    showToast(params.context, "Silent mode", false)
+                } else {
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                    showToast(params.context, "Silent mode", true)
+                }
+                params.onSettingChanged(!isSilentModeOn)
+                true
+            } catch (e: SecurityException) { // Catch the exception when the app is in DND mode
+                Toast.makeText(
+                    params.context, "Cannot change silent mode settings in Do Not Disturb mode",
+                    Toast.LENGTH_SHORT
+                ).show()
+                false
+            }
+        }
+    }
+
+    /**
      * Opens the screen to allow the user to write system settings.
      */
     fun openPermissionSettings(context: Context) {
@@ -142,6 +203,15 @@ object SettingsUtils {
         context.startActivity(intent)
     }
 
+    /**
+     * Opens the screen to allow the user to grant DND permission.
+     */
+    fun openDndPermissionSettings(context: Context) {
+        val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
+    }
     /**
      * The main view model that holds the state of the settings.
      */
@@ -154,14 +224,14 @@ object SettingsUtils {
          * Updates the state of the canWrite setting.
          */
         fun updateCanWrite(context: Context) {
-            canWrite.value = SettingsUtils.canWriteSettings(context)
+            canWrite.value = canWriteSettings(context)
         }
 
         /**
          * Updates the state of the adaptive brightness setting.
          */
         fun updateIsSwitchedOn(context: Context) {
-            isSwitchedOn.value = SettingsUtils.Brightness.isAdaptiveBrightnessEnabled(context)
+            isSwitchedOn.value = Brightness.isAdaptiveBrightnessEnabled(context)
         }
 
         /**

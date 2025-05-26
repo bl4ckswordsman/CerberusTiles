@@ -1,5 +1,9 @@
 package com.bl4ckswordsman.cerberustiles.ui
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -7,8 +11,11 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.bl4ckswordsman.cerberustiles.R
 import com.bl4ckswordsman.cerberustiles.SettingsUtils
 import com.bl4ckswordsman.cerberustiles.models.RingerMode
@@ -104,38 +111,53 @@ private fun RingerModeSelector(
 ) {
     val context = LocalContext.current
 
-    SingleChoiceSegmentedButtonRow {
-        RingerMode.entries.forEachIndexed { index, mode ->
-            SegmentedButton(
-                selected = currentMode == mode,
-                onClick = {
-                    if (enabled && currentMode != mode) {
-                        changeRingerMode(context, mode, onModeSelected)
-                    }
-                },
-                shape = SegmentedButtonDefaults.itemShape(index, RingerMode.entries.size),
-                enabled = enabled,
-                icon = {
-                    val iconPainter = when (mode) {
-                        RingerMode.NORMAL -> if (currentMode == mode)
-                            painterResource(R.drawable.baseline_volume_up_24)
-                        else
-                            painterResource(R.drawable.outline_volume_up_24)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp), // Padding to match other components' spacing
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier.fillMaxWidth(0.9f) // Scale to 90% width for better visual balance
+        ) {
+            RingerMode.entries.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    selected = currentMode == mode,
+                    onClick = {
+                        if (currentMode != mode) {
+                            // Check write settings permission
+                            if (!SettingsUtils.canWriteSettings(context)) {
+                                SettingsUtils.openPermissionSettings(context)
+                            } else {
+                                changeRingerMode(context, mode, onModeSelected)
+                            }
+                        }
+                    },
+                    shape = SegmentedButtonDefaults.itemShape(index, RingerMode.entries.size),
+                    enabled = true, // Always enabled so clicks work for permission requests
+                    icon = {
+                        val iconPainter = when (mode) {
+                            RingerMode.NORMAL -> if (currentMode == mode)
+                                painterResource(R.drawable.baseline_volume_up_24)
+                            else
+                                painterResource(R.drawable.outline_volume_up_24)
 
-                        RingerMode.SILENT -> if (currentMode == mode)
-                            painterResource(R.drawable.baseline_volume_off_24)
-                        else
-                            painterResource(R.drawable.outline_volume_off_24)
+                            RingerMode.SILENT -> if (currentMode == mode)
+                                painterResource(R.drawable.baseline_volume_off_24)
+                            else
+                                painterResource(R.drawable.outline_volume_off_24)
 
-                        RingerMode.VIBRATE -> if (currentMode == mode)
-                            painterResource(R.drawable.twotone_vibration_24)
-                        else
-                            painterResource(R.drawable.baseline_vibration_24)
+                            RingerMode.VIBRATE -> if (currentMode == mode)
+                                painterResource(R.drawable.twotone_vibration_24)
+                            else
+                                painterResource(R.drawable.baseline_vibration_24)
+                        }
+                        Icon(painter = iconPainter, contentDescription = mode.name)
                     }
-                    Icon(painter = iconPainter, contentDescription = mode.name)
+                ) {
+                    Text(text = mode.name.lowercase().replaceFirstChar { it.uppercase() })
                 }
-            ) {
-                Text(text = mode.name.lowercase().replaceFirstChar { it.uppercase() })
             }
         }
     }
