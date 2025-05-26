@@ -99,10 +99,6 @@ fun SettingsComponents(params: SettingsComponentsParams) {
     }
 }
 
-/**
- * Composable segmented button row for selecting between Normal, Silent, and Vibrate ringer modes.
- * Handles permission checking and mode switching with proper user feedback.
- */
 @Composable
 private fun RingerModeSelectionSegmentedButtonRow(
     currentMode: RingerMode,
