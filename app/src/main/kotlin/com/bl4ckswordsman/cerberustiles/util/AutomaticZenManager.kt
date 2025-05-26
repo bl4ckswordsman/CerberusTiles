@@ -24,71 +24,93 @@ object AutomaticZenManager {
      * AutomaticZenRule approach has limitations with manual control.
      */
     fun activateSilentMode(context: Context): Boolean {
-        if (!canManageDndRules(context)) {
-            Toast.makeText(
-                context,
-                "Silent mode requires Do Not Disturb permission. Redirecting to settings...",
-                Toast.LENGTH_SHORT
-            ).show()
-            SettingsUtils.openDndPermissionSettings(context)
-            return false
-        }
-        
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        
-        return try {
-            // Use direct interruption filter approach instead of AutomaticZenRule
-            // This is more reliable for manual control
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
-            true
-        } catch (_: Exception) {
-            Toast.makeText(
-                context,
-                "Failed to activate silent mode",
-                Toast.LENGTH_SHORT
-            ).show()
-            false
-        }
+        return SilentModeController(context).activate()
     }
     
     /**
      * Deactivates silent mode by restoring normal interruption filter.
      */
     fun deactivateSilentMode(context: Context): Boolean {
-        if (!canManageDndRules(context)) {
-            return false
-        }
-        
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        
-        return try {
-            // Restore normal interruption filter
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
-            true
-        } catch (_: Exception) {
-            Toast.makeText(
-                context,
-                "Failed to deactivate silent mode",
-                Toast.LENGTH_SHORT
-            ).show()
-            false
-        }
+        return SilentModeController(context).deactivate()
     }
     
     /**
      * Checks if silent mode is currently active via interruption filter.
      */
     fun isSilentModeActive(context: Context): Boolean {
-        if (!canManageDndRules(context)) {
-            return false
+        return SilentModeController(context).isActive()
+    }
+    
+    /**
+     * Controller class to handle silent mode operations and reduce complexity.
+     */
+    private class SilentModeController(private val context: Context) {
+        private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        
+        fun activate(): Boolean {
+            if (!canManageDndRules(context)) {
+                showPermissionRequiredMessage()
+                return false
+            }
+            
+            return try {
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
+                true
+            } catch (_: Exception) {
+                showActivationErrorMessage()
+                false
+            }
         }
         
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        fun deactivate(): Boolean {
+            if (!canManageDndRules(context)) {
+                return false
+            }
+            
+            return try {
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                true
+            } catch (_: Exception) {
+                showDeactivationErrorMessage()
+                false
+            }
+        }
         
-        return try {
-            notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE
-        } catch (_: Exception) {
-            false
+        fun isActive(): Boolean {
+            if (!canManageDndRules(context)) {
+                return false
+            }
+            
+            return try {
+                notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE
+            } catch (_: Exception) {
+                false
+            }
+        }
+        
+        private fun showPermissionRequiredMessage() {
+            Toast.makeText(
+                context,
+                "Silent mode requires Do Not Disturb permission. Redirecting to settings...",
+                Toast.LENGTH_SHORT
+            ).show()
+            SettingsUtils.openDndPermissionSettings(context)
+        }
+        
+        private fun showActivationErrorMessage() {
+            Toast.makeText(
+                context,
+                "Failed to activate silent mode",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        
+        private fun showDeactivationErrorMessage() {
+            Toast.makeText(
+                context,
+                "Failed to deactivate silent mode",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }
