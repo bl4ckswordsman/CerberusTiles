@@ -219,9 +219,6 @@ private class SegmentedButtonClickHandler(
     }
 }
 
-/**
- * Gets the appropriate icon for the given mode and current selection state.
- */
 @Composable
 private fun getIconForMode(mode: RingerMode, currentMode: RingerMode) = when (mode) {
     RingerMode.NORMAL -> if (currentMode == mode)
