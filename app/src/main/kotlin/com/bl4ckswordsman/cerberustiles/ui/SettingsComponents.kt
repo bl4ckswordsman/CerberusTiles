@@ -30,7 +30,6 @@ import com.bl4ckswordsman.cerberustiles.util.Ringer
 data class ComponentVisibilityDialogParams(
     val adaptBrightnessSwitch: MutableState<Boolean>,
     val brightnessSlider: MutableState<Boolean>,
-    // val vibrationSwitch: MutableState<Boolean>, // TODO: Delete this
     val ringerModeSelector: MutableState<Boolean>
 )
 
