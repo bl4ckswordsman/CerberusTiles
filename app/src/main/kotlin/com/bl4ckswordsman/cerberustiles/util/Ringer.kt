@@ -42,77 +42,103 @@ object Ringer {
         }
 
         val currentMode = getCurrentRingerMode(params.context)
+        if (currentMode == newMode) return
         
-        if (currentMode != newMode) {
-            try {
-                applyRingerModeChangeWithAudioManager(params, newMode)
-                verifyModeChangeAndNotifyUser(params, newMode)
-            } catch (e: SecurityException) {
-                handleRingerModeSecurityException(params, newMode, e)
-            }
-        }
-    }
-
-    private fun applyRingerModeChangeWithAudioManager(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode) {
-        val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        
-        when (newMode) {
-            RingerMode.SILENT -> activateSilentModeWithDndIntegration(params, audioManager)
-            else -> activateNonSilentModeWithDndDeactivation(params, audioManager, newMode)
-        }
-    }
-
-    private fun activateSilentModeWithDndIntegration(params: SettingsUtils.SettingsToggleParams, audioManager: AudioManager) {
-        val success = AutomaticZenManager.activateSilentMode(params.context)
-        if (!success) {
-            return // AutomaticZenManager handles error messaging
-        }
-        audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-    }
-
-    private fun activateNonSilentModeWithDndDeactivation(params: SettingsUtils.SettingsToggleParams, audioManager: AudioManager, newMode: RingerMode) {
-        if (AutomaticZenManager.isSilentModeActive(params.context)) {
-            AutomaticZenManager.deactivateSilentMode(params.context)
-        }
-        
-        val systemMode = when (newMode) {
-            RingerMode.NORMAL -> AudioManager.RINGER_MODE_NORMAL
-            RingerMode.VIBRATE -> AudioManager.RINGER_MODE_VIBRATE
-            RingerMode.SILENT -> AudioManager.RINGER_MODE_SILENT // Should not reach here
-        }
-        audioManager.ringerMode = systemMode
-    }
-
-    private fun verifyModeChangeAndNotifyUser(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode) {
-        val updatedMode = getCurrentRingerMode(params.context)
-        
-        if (updatedMode == newMode) {
-            val modeName = when(newMode) {
-                RingerMode.NORMAL -> "Sound mode"
-                RingerMode.SILENT -> "Silent mode"
-                RingerMode.VIBRATE -> "Vibrate mode"
-            }
-            SettingsUtils.showToast(params.context, modeName, true)
+        val modeChangeResult = RingerModeChanger(params, newMode).execute()
+        if (modeChangeResult.success) {
             params.onSettingChanged(true)
         }
     }
 
-    private fun handleRingerModeSecurityException(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode, e: SecurityException) {
-        when (newMode) {
-            RingerMode.SILENT -> {
-                Toast.makeText(
-                    params.context,
-                    "Cannot set silent mode. Please grant Do Not Disturb permission in settings.",
-                    Toast.LENGTH_LONG
-                ).show()
-                SettingsUtils.openDndPermissionSettings(params.context)
+    /**
+     * Handles the process of changing ringer mode with proper error handling.
+     */
+    private class RingerModeChanger(
+        private val params: SettingsUtils.SettingsToggleParams,
+        private val newMode: RingerMode
+    ) {
+        data class ChangeResult(val success: Boolean, val message: String? = null)
+        
+        fun execute(): ChangeResult {
+            return try {
+                applyRingerModeChange()
+                verifyAndNotifyModeChange()
+            } catch (e: SecurityException) {
+                handleSecurityException(e)
+                ChangeResult(false, e.message)
             }
-            else -> {
-                Toast.makeText(
-                    params.context,
-                    "Cannot change ringer mode: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+        }
+        
+        private fun applyRingerModeChange() {
+            val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            
+            when (newMode) {
+                RingerMode.SILENT -> applySilentMode(audioManager)
+                else -> applyNonSilentMode(audioManager)
+            }
+        }
+        
+        private fun applySilentMode(audioManager: AudioManager) {
+            val success = AutomaticZenManager.activateSilentMode(params.context)
+            if (success) {
+                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+            }
+        }
+        
+        private fun applyNonSilentMode(audioManager: AudioManager) {
+            if (AutomaticZenManager.isSilentModeActive(params.context)) {
+                AutomaticZenManager.deactivateSilentMode(params.context)
+            }
+            
+            val systemMode = when (newMode) {
+                RingerMode.NORMAL -> AudioManager.RINGER_MODE_NORMAL
+                RingerMode.VIBRATE -> AudioManager.RINGER_MODE_VIBRATE
+                RingerMode.SILENT -> AudioManager.RINGER_MODE_SILENT
+            }
+            audioManager.ringerMode = systemMode
+        }
+        
+        private fun verifyAndNotifyModeChange(): ChangeResult {
+            val updatedMode = getCurrentRingerMode(params.context)
+            
+            return if (updatedMode == newMode) {
+                val modeName = getModeDisplayName(newMode)
+                SettingsUtils.showToast(params.context, modeName, true)
+                ChangeResult(true)
+            } else {
+                ChangeResult(false, "Mode change verification failed")
+            }
+        }
+        
+        private fun handleSecurityException(e: SecurityException) {
+            when (newMode) {
+                RingerMode.SILENT -> showSilentModeError()
+                else -> showGeneralError(e.message)
+            }
+        }
+        
+        private fun showSilentModeError() {
+            Toast.makeText(
+                params.context,
+                "Cannot set silent mode. Please grant Do Not Disturb permission in settings.",
+                Toast.LENGTH_LONG
+            ).show()
+            SettingsUtils.openDndPermissionSettings(params.context)
+        }
+        
+        private fun showGeneralError(message: String?) {
+            Toast.makeText(
+                params.context,
+                "Cannot change ringer mode: $message",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+        
+        private fun getModeDisplayName(mode: RingerMode): String {
+            return when(mode) {
+                RingerMode.NORMAL -> "Sound mode"
+                RingerMode.SILENT -> "Silent mode"
+                RingerMode.VIBRATE -> "Vibrate mode"
             }
         }
     }
