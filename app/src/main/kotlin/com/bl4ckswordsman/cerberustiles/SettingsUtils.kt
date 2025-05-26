@@ -1,5 +1,6 @@
 package com.bl4ckswordsman.cerberustiles
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
@@ -9,6 +10,7 @@ import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.bl4ckswordsman.cerberustiles.util.AutomaticZenManager
 import kotlin.math.pow
 
 /** Utilities for different settings. */
@@ -26,6 +28,15 @@ object SettingsUtils {
      */
     fun canWriteSettings(context: Context): Boolean {
         return Settings.System.canWrite(context)
+    }
+
+    /**
+     * Checks if the app can access notification policy (DND settings).
+     */
+    fun canAccessNotificationPolicy(context: Context): Boolean {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        return notificationManager.isNotificationPolicyAccessGranted
     }
 
     /**
@@ -107,22 +118,128 @@ object SettingsUtils {
          * Toggles the vibration mode.
          */
         fun toggleVibrationMode(params: SettingsToggleParams): Boolean {
-            val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            return try {
-                val isVibrationModeOn = audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE
-                if (isVibrationModeOn) {
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                    showToast(params.context, "Vibration mode", false)
-                } else {
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
-                    showToast(params.context, "Vibration mode", true)
+            return VibrationModeToggler(params).toggle()
+        }
+
+        /**
+         * Handles the vibration mode toggling logic.
+         */
+        private class VibrationModeToggler(private val params: SettingsToggleParams) {
+            fun toggle(): Boolean {
+                if (!canWriteSettings(params.context)) {
+                    openPermissionSettings(params.context)
+                    return false
                 }
-                params.onSettingChanged(!isVibrationModeOn)
-                true
-            } catch (e: SecurityException) { // Catch the exception when the app is in DND mode
-                Toast.makeText(params.context, "Cannot change vibration settings in Do Not Disturb mode",
-                    Toast.LENGTH_SHORT).show()
-                false
+
+                return performVibrationToggle()
+            }
+
+            private fun performVibrationToggle(): Boolean {
+                val audioManager =
+                    params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+                return try {
+                    val isVibrationModeOn =
+                        audioManager.ringerMode == AudioManager.RINGER_MODE_VIBRATE
+                    val newMode =
+                        if (isVibrationModeOn) AudioManager.RINGER_MODE_NORMAL else AudioManager.RINGER_MODE_VIBRATE
+
+                    audioManager.ringerMode = newMode
+                    showToast(params.context, "Vibration mode", !isVibrationModeOn)
+                    params.onSettingChanged(!isVibrationModeOn)
+                    true
+                } catch (e: SecurityException) {
+                    handleVibrationSecurityException()
+                    false
+                }
+            }
+
+            private fun handleVibrationSecurityException() {
+                Toast.makeText(
+                    params.context,
+                    "Cannot change vibration settings in Do Not Disturb mode",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    /**
+     * Utilities for silent mode settings using AutomaticZenManager.
+     */
+    object Silent {
+        /**
+         * Checks if the silent mode is enabled.
+         */
+        fun isSilentModeEnabled(context: Context): Boolean {
+            // Check both audio manager and DND state for complete silent mode
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val isAudioSilent = audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT
+            val isDndActive = AutomaticZenManager.isSilentModeActive(context)
+
+            return isAudioSilent || isDndActive
+        }
+
+        /**
+         * Toggles the silent mode using AutomaticZenManager for Android 15+ compatibility.
+         */
+        fun toggleSilentMode(params: SettingsToggleParams): Boolean {
+            return SilentModeToggler(params).toggle()
+        }
+
+        /**
+         * Handles the silent mode toggling logic.
+         */
+        private class SilentModeToggler(private val params: SettingsToggleParams) {
+            fun toggle(): Boolean {
+                if (!canWriteSettings(params.context)) {
+                    openPermissionSettings(params.context)
+                    return false
+                }
+
+                return try {
+                    val isSilentModeOn = isSilentModeEnabled(params.context)
+                    if (isSilentModeOn) {
+                        deactivateSilentMode()
+                    } else {
+                        activateSilentMode()
+                    }
+                } catch (e: SecurityException) {
+                    handleSilentModeSecurityException()
+                    false
+                }
+            }
+
+            private fun activateSilentMode(): Boolean {
+                val success = AutomaticZenManager.activateSilentMode(params.context)
+                if (success) {
+                    val audioManager =
+                        params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                    showToast(params.context, "Silent mode", true)
+                    params.onSettingChanged(true)
+                }
+                return success
+            }
+
+            private fun deactivateSilentMode(): Boolean {
+                val success = AutomaticZenManager.deactivateSilentMode(params.context)
+                if (success) {
+                    val audioManager =
+                        params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                    showToast(params.context, "Silent mode", false)
+                    params.onSettingChanged(false)
+                }
+                return success
+            }
+
+            private fun handleSilentModeSecurityException() {
+                Toast.makeText(
+                    params.context,
+                    "Cannot change silent mode settings. Please check permissions.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -137,35 +254,45 @@ object SettingsUtils {
         }
         context.startActivity(intent)
     }
-}
-
-/**
- * The main view model that holds the state of the settings.
- */
-class MainViewModel : ViewModel() {
-    val canWrite = MutableLiveData<Boolean>()
-    val isSwitchedOn = mutableStateOf(false)
-    val isVibrationModeOn = mutableStateOf(false)
 
     /**
-     * Updates the state of the canWrite setting.
+     * Opens the screen to allow the user to grant DND permission.
      */
-    fun updateCanWrite(context: Context) {
-        canWrite.value = SettingsUtils.canWriteSettings(context)
+    fun openDndPermissionSettings(context: Context) {
+        val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
     }
 
     /**
-     * Updates the state of the adaptive brightness setting.
+     * The main view model that holds the state of the settings.
      */
-    fun updateIsSwitchedOn(context: Context) {
-        isSwitchedOn.value = SettingsUtils.Brightness.isAdaptiveBrightnessEnabled(context)
-    }
+    class MainViewModel : ViewModel() {
+        val canWrite = MutableLiveData<Boolean>()
+        val isSwitchedOn = mutableStateOf(false)
+        val isVibrationModeOn = mutableStateOf(false)
 
-    /**
-     * Updates the state of the vibration mode setting.
-     */
-    fun updateIsVibrationModeOn(context: Context) {
-        isVibrationModeOn.value = SettingsUtils.Vibration.isVibrationModeEnabled(context)
+        /**
+         * Updates the state of the canWrite setting.
+         */
+        fun updateCanWrite(context: Context) {
+            canWrite.value = canWriteSettings(context)
+        }
+
+        /**
+         * Updates the state of the adaptive brightness setting.
+         */
+        fun updateIsSwitchedOn(context: Context) {
+            isSwitchedOn.value = Brightness.isAdaptiveBrightnessEnabled(context)
+        }
+
+        /**
+         * Updates the state of the vibration mode setting.
+         */
+        fun updateIsVibrationModeOn(context: Context) {
+            isVibrationModeOn.value = Vibration.isVibrationModeEnabled(context)
+        }
     }
 }
 

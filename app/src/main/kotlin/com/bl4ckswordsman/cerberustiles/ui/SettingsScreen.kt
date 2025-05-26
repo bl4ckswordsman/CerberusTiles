@@ -81,7 +81,10 @@ data class SettingsScreenParams(
 @Composable
 fun SettingsScreen(params: SettingsScreenParams) {
     val onDownloadComplete =
-        createDownloadCompleteReceiver(params.sharedParams.downloadId, params.sharedParams.downloadManager)
+        createDownloadCompleteReceiver(
+            params.sharedParams.downloadId,
+            params.sharedParams.downloadManager
+        )
     DownloadReceiver(params.sharedParams.context, onDownloadComplete)
     FetchLatestReleaseInfoOnCompose(params.sharedParams.context, params.sharedParams.releaseInfo)
     OpenSourceLicensesDialog(params.sharedParams.showLicensesDialog)

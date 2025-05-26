@@ -17,7 +17,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 @Composable
 fun OpenSourceLicensesDialog(showDialog: MutableState<Boolean>) {
     if (showDialog.value) {
-        val context = LocalContext.current
+        LocalContext.current
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
             title = { Text("Open Source Licenses") },

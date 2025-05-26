@@ -35,7 +35,8 @@ class ShortcutHelper(private val context: Context) {
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     suspend fun createAllShortcuts() {
         withContext(Dispatchers.IO) {
-            val shortcutManager = context.getSystemService(Context.SHORTCUT_SERVICE) as ShortcutManager?
+            val shortcutManager =
+                context.getSystemService(Context.SHORTCUT_SERVICE) as ShortcutManager?
 
             val adaptiveBrightnessShortcut = createShortcut(
                 CustomShortcutInfo(
