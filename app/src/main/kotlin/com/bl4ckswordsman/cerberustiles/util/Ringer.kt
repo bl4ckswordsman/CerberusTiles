@@ -45,30 +45,24 @@ object Ringer {
         
         if (currentMode != newMode) {
             try {
-                applyRingerModeChange(params, newMode)
-                verifyAndNotifyModeChange(params, newMode)
+                applyRingerModeChangeWithAudioManager(params, newMode)
+                verifyModeChangeAndNotifyUser(params, newMode)
             } catch (e: SecurityException) {
-                handleRingerModeError(params, newMode, e)
+                handleRingerModeSecurityException(params, newMode, e)
             }
         }
     }
 
-    /**
-     * Applies the ringer mode change using appropriate methods for each mode.
-     */
-    private fun applyRingerModeChange(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode) {
+    private fun applyRingerModeChangeWithAudioManager(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode) {
         val audioManager = params.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         
         when (newMode) {
-            RingerMode.SILENT -> activateSilentMode(params, audioManager)
-            else -> activateNonSilentMode(params, audioManager, newMode)
+            RingerMode.SILENT -> activateSilentModeWithDndIntegration(params, audioManager)
+            else -> activateNonSilentModeWithDndDeactivation(params, audioManager, newMode)
         }
     }
 
-    /**
-     * Activates silent mode using DND integration.
-     */
-    private fun activateSilentMode(params: SettingsUtils.SettingsToggleParams, audioManager: AudioManager) {
+    private fun activateSilentModeWithDndIntegration(params: SettingsUtils.SettingsToggleParams, audioManager: AudioManager) {
         val success = AutomaticZenManager.activateSilentMode(params.context)
         if (!success) {
             return // AutomaticZenManager handles error messaging
@@ -76,10 +70,7 @@ object Ringer {
         audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
     }
 
-    /**
-     * Activates normal or vibrate mode, deactivating DND if needed.
-     */
-    private fun activateNonSilentMode(params: SettingsUtils.SettingsToggleParams, audioManager: AudioManager, newMode: RingerMode) {
+    private fun activateNonSilentModeWithDndDeactivation(params: SettingsUtils.SettingsToggleParams, audioManager: AudioManager, newMode: RingerMode) {
         if (AutomaticZenManager.isSilentModeActive(params.context)) {
             AutomaticZenManager.deactivateSilentMode(params.context)
         }
@@ -92,10 +83,7 @@ object Ringer {
         audioManager.ringerMode = systemMode
     }
 
-    /**
-     * Verifies the mode change was successful and notifies the UI.
-     */
-    private fun verifyAndNotifyModeChange(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode) {
+    private fun verifyModeChangeAndNotifyUser(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode) {
         val updatedMode = getCurrentRingerMode(params.context)
         
         if (updatedMode == newMode) {
@@ -109,10 +97,7 @@ object Ringer {
         }
     }
 
-    /**
-     * Handles errors during ringer mode changes.
-     */
-    private fun handleRingerModeError(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode, e: SecurityException) {
+    private fun handleRingerModeSecurityException(params: SettingsUtils.SettingsToggleParams, newMode: RingerMode, e: SecurityException) {
         when (newMode) {
             RingerMode.SILENT -> {
                 Toast.makeText(
