@@ -11,7 +11,7 @@
   <a href="https://github.com/bl4ckswordsman/CerberusTiles/actions/workflows/codeql.yml"><img src="https://github.com/bl4ckswordsman/CerberusTiles/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
   <a href="https://github.com/bl4ckswordsman/CerberusTiles/"><img src="https://badges.pufler.dev/visits/bl4ckswordsman/CerberusTiles/" alt="Visits Badge"></a>
   <a href="https://hits.seeyoufarm.com/api/count/graph/dailyhits.svg?url=https://github.com/bl4ckswordsman/CerberusTiles">
-    <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fbl4ckswordsman%2FCerberusTiles&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Daily+hits&edge_flat=false" alt="views"> <!-- Added 2024-02-14. This count views instead of visitors like the previous one did -->
+    <!-- <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fbl4ckswordsman%2FCerberusTiles&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Daily+hits&edge_flat=false" alt="views"> Added 2024-02-14. This count views instead of visitors like the previous one did. Removed 2025-06-14 -->
 </a>
 </p>
 
