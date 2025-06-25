@@ -2,21 +2,26 @@ package com.bl4ckswordsman.cerberustiles.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bl4ckswordsman.cerberustiles.R
@@ -77,7 +82,7 @@ fun SettingsComponents(params: SettingsComponentsParams) {
     }
 
     if (params.componentVisibilityParams.ringerModeSelector.value) {
-        RingerModeSelectionSegmentedButtonRow(
+        RingerModeSelectionButtonGroup(
             currentMode = params.currentRingerMode,
             isOverlayContext = params.isOverlayContext,
             onModeSelected = { newMode ->
@@ -87,13 +92,15 @@ fun SettingsComponents(params: SettingsComponentsParams) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun RingerModeSelectionSegmentedButtonRow(
+private fun RingerModeSelectionButtonGroup(
     currentMode: RingerMode,
     isOverlayContext: Boolean = false,
     onModeSelected: (RingerMode) -> Unit
 ) {
     val context = LocalContext.current
+    val modes = RingerMode.entries
 
     Row(
         modifier = Modifier
@@ -101,41 +108,55 @@ private fun RingerModeSelectionSegmentedButtonRow(
             .padding(
                 horizontal = 16.dp,
                 vertical = 12.dp
-            ), // Padding to match other components' spacing
-        horizontalArrangement = Arrangement.Center,
+            ),
+        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier.fillMaxWidth(0.9f) // Scale to 90% width for better visual balance
-        ) {
-            RingerMode.entries.forEachIndexed { index, mode ->
-                SegmentedButton(
-                    selected = currentMode == mode,
-                    onClick = {
-                        SegmentedButtonClickHandler(
+        modes.forEachIndexed { index, mode ->
+            val isSelected = currentMode == mode
+            val modifierWeight = if (isOverlayContext) {
+                // In overlay context, all buttons have equal weight since they're icon-only
+                Modifier.weight(1f)
+            } else {
+                // In normal context, adjust weights for text length
+                when (mode) {
+                    RingerMode.NORMAL -> Modifier.weight(1f)
+                    RingerMode.VIBRATE -> Modifier.weight(1.2f) // Slightly wider for "Vibrate"
+                    RingerMode.SILENT -> Modifier.weight(1f)
+                }
+            }
+            
+            ToggleButton(
+                checked = isSelected,
+                onCheckedChange = { 
+                    if (!isSelected) {
+                        ButtonGroupClickHandler(
                             context,
                             currentMode,
                             mode,
                             onModeSelected
                         ).handle()
-                    },
-                    shape = SegmentedButtonDefaults.itemShape(index, RingerMode.entries.size),
-                    enabled = true, // Always enabled so clicks work for permission requests
-                    icon = {
-                        Icon(
-                            painter = getIconForMode(mode, currentMode),
-                            contentDescription = mode.name,
-                            modifier = if (isOverlayContext) Modifier.size(16.dp) else Modifier
-                        )
                     }
-                ) {
+                },
+                modifier = modifierWeight.semantics { role = Role.RadioButton },
+                shapes = when (index) {
+                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    modes.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                }
+            ) {
+                Icon(
+                    painter = getIconForMode(mode, currentMode),
+                    contentDescription = mode.name,
+                    modifier = if (isOverlayContext) Modifier.size(16.dp) else Modifier
+                )
+                
+                // Only show text when not in overlay context
+                if (!isOverlayContext) {
+                    Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text(
                         text = mode.name.lowercase().replaceFirstChar { it.uppercase() },
-                        style = if (isOverlayContext) {
-                            LocalTextStyle.current.copy(fontSize = 12.sp)
-                        } else {
-                            LocalTextStyle.current
-                        }
+                        style = LocalTextStyle.current
                     )
                 }
             }
@@ -200,9 +221,9 @@ private class RingerModeHandler(
 }
 
 /**
- * Handles click events for segmented buttons to reduce complexity.
+ * Handles click events for button group buttons to reduce complexity.
  */
-private class SegmentedButtonClickHandler(
+private class ButtonGroupClickHandler(
     private val context: android.content.Context,
     private val currentMode: RingerMode,
     private val selectedMode: RingerMode,
