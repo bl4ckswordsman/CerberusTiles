@@ -21,7 +21,7 @@
 
 ## Introduction
 
-Pixel phones don't offer quick access tto some core settings, unlike some other Android phone manufacturers.
+Pixel phones don't offer quick access to some core settings, unlike some other Android phone manufacturers.
 
 That's where Cerberus Tiles[^1] comes in, to add more quick settings tiles and shortcuts to your Google Pixel.
 Ideal to be used with the back tap gesture.
